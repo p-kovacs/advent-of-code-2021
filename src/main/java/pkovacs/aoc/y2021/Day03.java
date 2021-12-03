@@ -1,6 +1,7 @@
 package pkovacs.aoc.y2021;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import pkovacs.aoc.AocUtils;
 import pkovacs.util.InputUtils;
@@ -17,23 +18,23 @@ public class Day03 {
         System.out.println("Part 2: " + part2);
     }
 
+    private static Stream<String> filter(List<String> list, int index, char ch) {
+        return list.stream().filter(s -> s.charAt(index) == ch);
+    }
+
     private static int getPreferredBit(List<String> list, int index, boolean mostCommon) {
-        long count = list.stream().filter(v -> v.charAt(index) == '1').count();
+        long count = filter(list, index, '1').count();
         int mostCommonBit = count >= list.size() - count ? 1 : 0;
         return mostCommon ? mostCommonBit : 1 - mostCommonBit;
     }
 
-    private static List<String> filter(List<String> list, int index, char ch) {
-        return list.stream().filter(s -> s.charAt(index) == ch).toList();
-    }
-
     private static long calculateRate(List<String> list, boolean mostCommon) {
         int bitCount = list.get(0).length();
-        long rate = 0;
+        var sb = new StringBuilder();
         for (int i = 0; i < bitCount; i++) {
-            rate = (rate << 1) | getPreferredBit(list, i, mostCommon);
+            sb.append(getPreferredBit(list, i, mostCommon));
         }
-        return rate;
+        return Long.parseLong(sb.toString(), 2);
     }
 
     private static long calculateRating(List<String> input, boolean mostCommon) {
@@ -41,7 +42,7 @@ public class Day03 {
         List<String> list = input;
         for (int i = 0; i < bitCount && list.size() > 1; i++) {
             char bit = getPreferredBit(list, i, mostCommon) == 1 ? '1' : '0';
-            list = filter(list, i, bit);
+            list = filter(list, i, bit).toList();
         }
         return Long.parseLong(list.get(0), 2);
     }
