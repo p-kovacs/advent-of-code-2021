@@ -21,7 +21,7 @@ public class AocSolutionsTest {
         return Stream.of(
                 new Arguments("Day01", Day01::main, "1301", "1346"),
                 new Arguments("Day02", Day02::main, "1693300", "1857958050"),
-                new Arguments("Day03", Day03::main, "0", "0"),
+                new Arguments("Day03", Day03::main, "2003336", "1877139"),
                 new Arguments("Day04", Day04::main, "0", "0"),
                 new Arguments("Day05", Day05::main, "0", "0"),
                 new Arguments("Day06", Day06::main, "0", "0"),
