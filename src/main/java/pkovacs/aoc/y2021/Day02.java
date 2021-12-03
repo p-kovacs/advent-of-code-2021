@@ -19,14 +19,15 @@ public class Day02 {
         long depth = 0;
         long aim = 0;
         for (var line : lines) {
-            int v = Integer.parseInt(line.split(" ")[1]);
-            if (line.startsWith("forward")) {
-                x += v;
-                depth += aim * v;
-            } else if (line.startsWith("up")) {
-                aim -= v;
-            } else if (line.startsWith("down")) {
-                aim += v;
+            var parts = line.split(" ");
+            int v = Integer.parseInt(parts[1]);
+            switch (parts[0]) {
+                case "forward" -> {
+                    x += v;
+                    depth += aim * v;
+                }
+                case "up" -> aim -= v;
+                case "down" -> aim += v;
             }
         }
         return advanced ? x * depth : x * aim;
