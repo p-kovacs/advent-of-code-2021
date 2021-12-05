@@ -36,6 +36,12 @@ class InputUtilsTest {
     }
 
     @Test
+    void testStream() {
+        assertEquals(2, InputUtils.stream("hello").filter(c -> c == 'l').count());
+        assertEquals(3, InputUtils.stream("hello".toCharArray()).filter(c -> c != 'l').count());
+    }
+
+    @Test
     void testScan() {
         var values = InputUtils.scan("Product PID_4242X is ordered.", ".*PID_%d%c is %s[.]");
 

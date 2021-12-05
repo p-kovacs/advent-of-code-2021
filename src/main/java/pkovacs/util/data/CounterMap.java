@@ -1,6 +1,7 @@
 package pkovacs.util.data;
 
 import java.util.HashMap;
+import java.util.function.UnaryOperator;
 import java.util.stream.LongStream;
 
 /**
@@ -40,47 +41,53 @@ public class CounterMap<K> extends HashMap<K, Long> {
     }
 
     /**
-     * Increments the value associated with {@code key} by one, and returns the new value.
+     * Increments the value associated with the given key by one and returns the new value.
      * If the map did not contain the key, the old value is assumed to be zero.
      */
     public long inc(K key) {
-        return add(key, 1);
+        return update(key, v -> v + 1);
     }
 
     /**
-     * Decrements the value associated with {@code key} by one, and returns the new value.
+     * Decrements the value associated with the given key by one and returns the new value.
      * If the map did not contain the key, the old value is assumed to be zero.
      */
     public long dec(K key) {
-        return add(key, -1);
+        return update(key, v -> v - 1);
     }
 
     /**
-     * Adds {@code delta} to the value associated with {@code key}, and returns the new value.
+     * Adds {@code delta} to the value associated with the given key and returns the new value.
      * If the map did not contain the key, the old value is assumed to be zero.
      */
     public long add(K key, long delta) {
-        long newValue = getValue(key) + delta;
-        put(key, newValue);
-        return newValue;
+        return update(key, v -> v + delta);
     }
 
     /**
-     * Multiplies the value associated with {@code key} by {@code factor}, and returns the new value.
+     * Multiplies the value associated with the given key by the given factor and returns the new value.
      * If the map did not contain the key, the old value is assumed to be zero.
      */
     public long multiply(K key, long factor) {
-        long newValue = getValue(key) * factor;
-        put(key, newValue);
-        return newValue;
+        return update(key, v -> v * factor);
     }
 
     /**
-     * Divides the value associated with {@code key} by {@code factor}, and returns the new value.
+     * Divides the value associated with the given key by the given factor and returns the new value.
      * If the map did not contain the key, the old value is assumed to be zero.
      */
     public long divide(K key, long factor) {
-        long newValue = getValue(key) / factor;
+        return update(key, v -> v / factor);
+    }
+
+    /**
+     * Updates the value associated with the given by applying the given function to the current. If the map
+     * did not contain the key, the old value is assumed to be zero.
+     *
+     * @return the new value associated with the given key after the update
+     */
+    public long update(K key, UnaryOperator<Long> function) {
+        long newValue = function.apply(getValue(key));
         put(key, newValue);
         return newValue;
     }

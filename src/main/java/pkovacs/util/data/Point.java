@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 /**
- * Represents a point in 2D space as an immutable pair of {@code long} values: x and y coordinates.
+ * Represents a point in 2D space as an immutable pair of {@code int} values: x and y coordinates.
  * Provides methods to get the neighbors of a point and the Manhattan distance between two points.
  * <p>
  * This class is similar to {@link Tile} but with different coordinate order and names. Another related class
@@ -14,7 +14,7 @@ import java.util.function.Predicate;
  * @see Tile
  * @see Vector
  */
-public record Point(long x, long y) {
+public record Point(int x, int y) {
 
     /**
      * Returns true if the coordinates of this point are valid with respect to the given width and height
@@ -22,7 +22,7 @@ public record Point(long x, long y) {
      *
      * @return true if the coordinates are between zero (inclusive) and the given width/height (exclusive).
      */
-    public boolean isValid(long width, long height) {
+    public boolean isValid(int width, int height) {
         return x >= 0 && x < width && y >= 0 && y < height;
     }
 
@@ -45,24 +45,24 @@ public record Point(long x, long y) {
     }
 
     /**
-     * Returns the {@link #isValid(long, long) valid} neighbors of this point with respect to the given width and
+     * Returns the {@link #isValid(int, int) valid} neighbors of this point with respect to the given width and
      * height.
      */
-    public Collection<Point> validNeighbors(long width, long height) {
+    public Collection<Point> validNeighbors(int width, int height) {
         return neighbors(p -> p.isValid(width, height));
     }
 
     /**
      * Returns the Manhattan distance between this point and the given point.
      */
-    public long dist(Point p) {
+    public int dist(Point p) {
         return dist(this, p);
     }
 
     /**
      * Returns the Manhattan distance between the given two points.
      */
-    public static long dist(Point p1, Point p2) {
+    public static int dist(Point p1, Point p2) {
         return Math.abs(p1.x - p2.x) + Math.abs(p1.y - p2.y);
     }
 
