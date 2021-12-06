@@ -81,7 +81,7 @@ public class CounterMap<K> extends HashMap<K, Long> {
     }
 
     /**
-     * Updates the value associated with the given by applying the given function to the current. If the map
+     * Updates the value associated with the given key by applying the given function to the current value. If the map
      * did not contain the key, the old value is assumed to be zero.
      *
      * @return the new value associated with the given key after the update
