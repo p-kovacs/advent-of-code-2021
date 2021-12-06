@@ -15,23 +15,18 @@ public class Day06 {
     }
 
     private static long solve(int[] input, int days) {
-        // counts[i] is the number of fishes with timer value i
-        long[] counts = new long[9];
+        long[] counts = new long[9]; // counts[i] is the number of fishes with timer value i (for the current day)
         for (int i : input) {
             counts[i]++;
         }
 
         for (int day = 0; day < days; day++) {
-            long[] newCounts = new long[9];
-            for (int i = 0; i < 9; i++) {
-                if (i == 0) {
-                    newCounts[6] += counts[i];
-                    newCounts[8] += counts[i];
-                } else {
-                    newCounts[i - 1] += counts[i];
-                }
+            long newborn = counts[0];
+            for (int i = 0; i < counts.length - 1; i++) {
+                counts[i] = counts[i + 1];
             }
-            counts = newCounts;
+            counts[6] += newborn;
+            counts[8] = newborn;
         }
 
         return LongStream.of(counts).sum();
