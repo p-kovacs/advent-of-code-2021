@@ -32,4 +32,20 @@ public class Day06 {
         return LongStream.of(counts).sum();
     }
 
+    // An alternative solution using dynamic programming
+    private static long solve2(int[] input, int days) {
+        long[] newFishes = new long[days + 1]; // newFishes[i] is the number of newborn fishes after i days
+        for (int i : input) {
+            newFishes[i + 1]++;
+        }
+        newFishes[8] += newFishes[1];
+        newFishes[9] += newFishes[2];
+
+        for (int day = 10; day <= days; day++) {
+            newFishes[day] = newFishes[day - 7] + newFishes[day - 9];
+        }
+
+        return input.length + LongStream.of(newFishes).sum();
+    }
+
 }
