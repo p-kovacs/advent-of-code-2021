@@ -1,5 +1,6 @@
 package pkovacs.aoc.y2021;
 
+import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
@@ -8,7 +9,6 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import pkovacs.aoc.AocUtils;
 import pkovacs.util.InputUtils;
-import pkovacs.util.alg.Bfs;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -25,13 +25,22 @@ public class Day12 {
         var graph = buildGraph(input);
         var smallCaves = graph.keySet().stream().filter(s -> s.toLowerCase().equals(s)).collect(toSet());
 
-        var allPaths = Bfs.run(List.of("start"),
-                path -> graph.get(lastElement(path)).stream()
-                        .map(s -> append(path, s))
+        long pathCount = 0;
+        var queue = new ArrayDeque<List<String>>();
+        queue.add(List.of("start"));
+        while (!queue.isEmpty()) {
+            var path = queue.remove();
+            if ("end".equals(lastElement(path))) {
+                pathCount++;
+            } else {
+                var newPaths = graph.get(lastElement(path)).stream()
+                        .map(next -> append(path, next))
                         .filter(p -> isAcceptedPath(p, smallCaves, advanced))
-                        .toList()).keySet();
-
-        return allPaths.stream().filter(path -> lastElement(path).equals("end")).count();
+                        .toList();
+                queue.addAll(newPaths);
+            }
+        }
+        return pathCount;
     }
 
     private static boolean isAcceptedPath(List<String> path, Collection<String> smallCaves, boolean advanced) {
@@ -43,12 +52,12 @@ public class Day12 {
     private static Multimap<String, String> buildGraph(List<String> input) {
         Multimap<String, String> graph = MultimapBuilder.hashKeys().hashSetValues().build();
         for (var line : input) {
-            var parts = line.split("-");
-            graph.put(parts[0], parts[1]);
-            graph.put(parts[1], parts[0]);
+            var caves = line.split("-");
+            graph.put(caves[0], caves[1]);
+            graph.put(caves[1], caves[0]);
         }
-        // Simplify directed graph: do not allow going back to "start" or going anywhere from "end"
-        graph.entries().removeIf(e -> "start".equals(e.getValue()) || "end".equals(e.getKey()));
+        // Simplify directed graph: do not allow going back to "start"
+        graph.entries().removeIf(e -> "start".equals(e.getValue()));
         return graph;
     }
 
