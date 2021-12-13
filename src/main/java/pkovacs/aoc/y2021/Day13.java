@@ -18,7 +18,7 @@ public class Day13 {
         System.out.println("Part 2: " + solve(input, false).size());
 
         System.out.println();
-        printResult(input, false);
+        printResult(input);
     }
 
     private static Set<Point> solve(String input, boolean stopAfterFirstFold) {
@@ -36,12 +36,12 @@ public class Day13 {
             if (line.contains("x=")) {
                 int x = Integer.parseInt(line.split("=")[1]);
                 set = set.stream()
-                        .map(p -> new Point(p.x() > x ? x - (p.x() - x) : p.x(), p.y()))
+                        .map(p -> new Point(x - Math.abs(p.x() - x), p.y()))
                         .collect(toSet());
             } else {
                 int y = Integer.parseInt(line.split("=")[1]);
                 set = set.stream()
-                        .map(p -> new Point(p.x(), p.y() > y ? y - (p.y() - y) : p.y()))
+                        .map(p -> new Point(p.x(), y - Math.abs(p.y() - y)))
                         .collect(toSet());
             }
             if (stopAfterFirstFold) {
@@ -52,8 +52,8 @@ public class Day13 {
         return set;
     }
 
-    private static void printResult(String input, boolean stopAfterFirstFold) {
-        var set = solve(input, stopAfterFirstFold);
+    private static void printResult(String input) {
+        var set = solve(input, false);
         int width = set.stream().mapToInt(Point::x).max().orElseThrow() + 1;
         int height = set.stream().mapToInt(Point::y).max().orElseThrow() + 1;
 
