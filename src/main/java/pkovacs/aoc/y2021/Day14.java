@@ -22,7 +22,7 @@ public class Day14 {
         // Parse rules into a Map (from->to)
         var rules = ruleLines.stream()
                 .map(line -> line.split(" -> "))
-                .collect(Collectors.toMap(p -> p[0], p -> p[0].charAt(0) + p[1] + p[0].charAt(1)));
+                .collect(Collectors.toMap(p -> p[0], p -> List.of(p[0].charAt(0) + p[1], p[1] + p[0].charAt(1))));
 
         // Collect 2-length slices of the input
         var slices = new CounterMap<String>();
@@ -33,15 +33,11 @@ public class Day14 {
         // Apply transformation steps
         for (int i = 0; i < stepCount; i++) {
             var newSlices = new CounterMap<String>();
-            for (var slice : slices.keySet()) {
-                if (rules.containsKey(slice)) {
-                    var to = rules.get(slice);
-                    newSlices.add(to.substring(0, 2), slices.get(slice));
-                    newSlices.add(to.substring(1, 3), slices.get(slice));
-                } else {
-                    newSlices.add(slice, slices.get(slice)); // actually unnecessary: there is a rule for each slice
+            slices.forEach((slice, count) -> {
+                for (var to : rules.getOrDefault(slice, List.of(slice))) {
+                    newSlices.add(to, count);
                 }
-            }
+            });
             slices = newSlices;
         }
 
