@@ -54,8 +54,9 @@ public final class ShortestPath {
      * @return a {@link PathResult} specifying a shortest path to a target node or an empty optional if no target
      *         nodes are reachable from the source node.
      */
-    public static <T> Optional<PathResult<T>> findPath(T source, Function<T, Iterable<Edge<T>>> edgeProvider,
-            Predicate<T> targetPredicate) {
+    public static <T> Optional<PathResult<T>> findPath(T source,
+            Function<? super T, ? extends Iterable<Edge<T>>> edgeProvider,
+            Predicate<? super T> targetPredicate) {
         var map = run(Collections.singleton(source), edgeProvider, targetPredicate);
         return map.values().stream().filter(PathResult::isTarget).findFirst();
     }
@@ -68,7 +69,8 @@ public final class ShortestPath {
      *         directed edges of {@code u} as a collection of {@link Edge} records.
      * @return a map that associates a {@link PathResult} with each node reachable from the source node.
      */
-    public static <T> Map<T, PathResult<T>> run(T source, Function<T, Iterable<Edge<T>>> edgeProvider) {
+    public static <T> Map<T, PathResult<T>> run(T source,
+            Function<? super T, ? extends Iterable<Edge<T>>> edgeProvider) {
         return run(Collections.singleton(source), edgeProvider, n -> false);
     }
 
@@ -85,8 +87,9 @@ public final class ShortestPath {
      * @return a map that associates a {@link PathResult} with each node that was reached from the source nodes
      *         during the search process.
      */
-    public static <T> Map<T, PathResult<T>> run(Iterable<T> sources, Function<T, Iterable<Edge<T>>> edgeProvider,
-            Predicate<T> targetPredicate) {
+    public static <T> Map<T, PathResult<T>> run(Iterable<? extends T> sources,
+            Function<? super T, ? extends Iterable<Edge<T>>> edgeProvider,
+            Predicate<? super T> targetPredicate) {
         var results = new HashMap<T, PathResult<T>>();
 
         var queue = new ArrayDeque<T>();

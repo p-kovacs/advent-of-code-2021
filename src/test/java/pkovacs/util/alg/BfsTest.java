@@ -1,7 +1,12 @@
 package pkovacs.util.alg;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.MultimapBuilder;
@@ -142,6 +147,26 @@ class BfsTest {
         assertEquals(List.of(0, 1, 2, 3, 6, 7, 14, 15, 30, 31, 62, 63, 126, 127), result2.get().path());
         assertEquals(List.of(0, 1, 2, 4, 5, 10, 20, 21, 42), result3.get().path());
         assertEquals(List.of(0, 1, 2, 4, 8, 16, 17, 34, 68, 136, 137), result4.get().path());
+    }
+
+    @Test
+    void testGenericParameters() {
+        Function<Collection<Integer>, Collection<List<Integer>>> neighborProvider = c ->
+                IntStream.rangeClosed(0, 3).mapToObj(i -> concat(c, i).toList()).toList();
+
+        var start = List.of(1, 0);
+        var target = List.of(1, 0, 1, 0, 0, 1, 2, 3);
+        Predicate<List<Integer>> predicate = target::equals;
+
+        var path = Bfs.findPath(start, neighborProvider, predicate);
+
+        assertTrue(path.isPresent());
+        assertEquals(6, path.get().dist());
+        assertEquals(target, path.get().node());
+    }
+
+    private static Stream<Integer> concat(Collection<Integer> collection, int i) {
+        return Stream.concat(collection.stream(), Stream.of(i));
     }
 
 }

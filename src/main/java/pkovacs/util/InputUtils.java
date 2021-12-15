@@ -80,10 +80,7 @@ public final class InputUtils {
         var lines = readLines(path);
         var matrix = new char[lines.size()][];
         for (int i = 0, n = matrix.length; i < n; i++) {
-            matrix[i] = new char[lines.get(i).length()];
-            for (int j = 0, m = matrix[i].length; j < m; j++) {
-                matrix[i][j] = lines.get(i).charAt(j);
-            }
+            matrix[i] = lines.get(i).toCharArray();
         }
         return matrix;
     }
@@ -134,6 +131,15 @@ public final class InputUtils {
                 .map(MatchResult::group)
                 .mapToLong(Long::parseLong)
                 .toArray();
+    }
+
+    /**
+     * Parses the given character as an integer in radix 36. That is, both digits and letters are accepted.
+     * Characters from '0' to '9' are parsed as integers from 0 to 9, while characters from 'a' to 'z' and
+     * from 'A' to 'Z' are parsed as integers from 10 to 35.
+     */
+    public static int parseInt(char c) {
+        return Integer.parseInt(String.valueOf(c), 36);
     }
 
     /**

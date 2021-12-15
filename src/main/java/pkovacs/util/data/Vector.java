@@ -169,9 +169,9 @@ public class Vector {
     }
 
     /**
-     * Returns a new vector that is the negative (opposite) of this vector.
+     * Returns a new vector obtained by negating this vector.
      */
-    public Vector negative() {
+    public Vector negate() {
         return newVector(i -> -coords[i]);
     }
 

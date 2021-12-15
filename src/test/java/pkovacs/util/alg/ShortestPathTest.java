@@ -1,5 +1,12 @@
 package pkovacs.util.alg;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.Test;
 import pkovacs.util.InputUtils;
 import pkovacs.util.alg.ShortestPath.Edge;
@@ -54,6 +61,29 @@ class ShortestPathTest {
 
         assertTrue(result.isPresent());
         return result.get();
+    }
+
+    @Test
+    void testGenericParameters() {
+        Function<Collection<Integer>, Collection<Edge<List<Integer>>>> neighborProvider = c ->
+                IntStream.rangeClosed(0, 3)
+                        .mapToObj(i -> new Edge<>(concat(c, i).toList(), Math.max(i * 10, 1)))
+                        .filter(e -> e.node().size() <= 10)
+                        .toList();
+
+        var start = List.of(1, 0);
+        var target = List.of(1, 0, 1, 0, 0, 1, 2);
+        Predicate<Collection<Integer>> predicate = target::equals;
+
+        var path = ShortestPath.findPath(start, neighborProvider, predicate);
+
+        assertTrue(path.isPresent());
+        assertEquals(42, path.get().dist());
+        assertEquals(target, path.get().node());
+    }
+
+    private static Stream<Integer> concat(Collection<Integer> collection, int i) {
+        return Stream.concat(collection.stream(), Stream.of(i));
     }
 
 }

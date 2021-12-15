@@ -1,4 +1,4 @@
 /**
- * Provides simple data storage classes and special collections.
+ * Provides simple data structures and special collections.
  */
 package pkovacs.util.data;

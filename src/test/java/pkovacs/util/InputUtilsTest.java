@@ -36,6 +36,18 @@ class InputUtilsTest {
     }
 
     @Test
+    void testParseIntFromChar() {
+        assertEquals(0, InputUtils.parseInt('0'));
+        assertEquals(5, InputUtils.parseInt('5'));
+        assertEquals(10, InputUtils.parseInt('a'));
+        assertEquals(10, InputUtils.parseInt('A'));
+        assertEquals(15, InputUtils.parseInt('f'));
+        assertEquals(15, InputUtils.parseInt('F'));
+        assertEquals(35, InputUtils.parseInt('z'));
+        assertEquals(35, InputUtils.parseInt('Z'));
+    }
+
+    @Test
     void testStream() {
         assertEquals(2, InputUtils.stream("hello").filter(c -> c == 'l').count());
         assertEquals(3, InputUtils.stream("hello".toCharArray()).filter(c -> c != 'l').count());

@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class TileTest {
 
     @Test
-    void test() {
+    void testBasicMethods() {
         var a = new Tile(12, 42);
         var b = new Tile(42, 12);
         var c = new Tile(42, 12);
@@ -25,6 +25,14 @@ class TileTest {
         assertTrue(a.isValid(13, 43));
         assertFalse(a.isValid(12, 43));
         assertFalse(a.isValid(13, 42));
+
+        assertEquals(60, a.dist(b));
+        assertEquals(0, b.dist(c));
+    }
+
+    @Test
+    void testNeighborMethods() {
+        var a = new Tile(12, 42);
 
         assertEquals(List.of(
                         new Tile(11, 42),
@@ -72,6 +80,24 @@ class TileTest {
 
         assertTrue(a.extendedNeighbors().stream().allMatch(n -> Tile.dist(a, n) <= 2));
         assertEquals(12, a.extendedNeighbors().stream().mapToInt(a::dist).sum());
+    }
+
+    @Test
+    void testStreamMethods() {
+        assertEquals(List.of(
+                        new Tile(0, 0), new Tile(0, 1), new Tile(0, 2),
+                        new Tile(1, 0), new Tile(1, 1), new Tile(1, 2)),
+                Tile.stream(2, 3).toList());
+        assertEquals(List.of(
+                        new Tile(0, 0), new Tile(0, 1),
+                        new Tile(1, 0), new Tile(1, 1),
+                        new Tile(2, 0), new Tile(2, 1)),
+                Tile.stream(3, 2).toList());
+        assertEquals(List.of(
+                        new Tile(42, 10), new Tile(42, 11),
+                        new Tile(43, 10), new Tile(43, 11),
+                        new Tile(44, 10), new Tile(44, 11)),
+                Tile.stream(42, 10, 45, 12).toList());
     }
 
 }

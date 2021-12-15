@@ -42,8 +42,9 @@ public final class Bfs {
      * @return a {@link PathResult} specifying a shortest path to a target node or an empty optional if no target
      *         nodes are reachable from the source node.
      */
-    public static <T> Optional<PathResult<T>> findPath(T source, Function<T, Iterable<T>> neighborProvider,
-            Predicate<T> targetPredicate) {
+    public static <T> Optional<PathResult<T>> findPath(T source,
+            Function<? super T, ? extends Iterable<T>> neighborProvider,
+            Predicate<? super T> targetPredicate) {
         var map = run(List.of(source), neighborProvider, targetPredicate);
         return map.values().stream().filter(PathResult::isTarget).findFirst();
     }
@@ -57,7 +58,8 @@ public final class Bfs {
      *         neighbor nodes reachable form {@code u} via directed edges.
      * @return a map that associates a {@link PathResult} with each node reachable from the source node.
      */
-    public static <T> Map<T, PathResult<T>> run(T source, Function<T, Iterable<T>> neighborProvider) {
+    public static <T> Map<T, PathResult<T>> run(T source,
+            Function<? super T, ? extends Iterable<T>> neighborProvider) {
         return run(List.of(source), neighborProvider, t -> false);
     }
 
@@ -74,8 +76,9 @@ public final class Bfs {
      * @return a map that associates a {@link PathResult} with each node that was reached from the source nodes
      *         during the search process.
      */
-    public static <T> Map<T, PathResult<T>> run(Iterable<T> sources, Function<T, Iterable<T>> neighborProvider,
-            Predicate<T> targetPredicate) {
+    public static <T> Map<T, PathResult<T>> run(Iterable<? extends T> sources,
+            Function<? super T, ? extends Iterable<T>> neighborProvider,
+            Predicate<? super T> targetPredicate) {
         var results = new HashMap<T, PathResult<T>>();
 
         var queue = new ArrayDeque<T>();

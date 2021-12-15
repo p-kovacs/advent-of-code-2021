@@ -17,8 +17,8 @@ class VectorTest {
         a = a.add(b).sub(new Vector(2, 2));
         assertEquals(new Vector(40, 10), a);
         assertEquals(50, a.dist());
-        assertEquals(new Vector(-40, -10), a.negative());
-        assertEquals(50, a.negative().dist());
+        assertEquals(new Vector(-40, -10), a.negate());
+        assertEquals(50, a.negate().dist());
 
         assertEquals(new Vector(10, -40), a.rotateRight());
         assertEquals(new Vector(-40, -10), a.rotateRight().rotateRight());
@@ -37,7 +37,7 @@ class VectorTest {
         assertEquals(42 + 12 + 30, Vector.dist(c, d));
         c = c.rotateLeft();
         assertEquals(c.dist() + d.dist(), c.dist(d));
-        c = c.negative();
+        c = c.negate();
         assertEquals(0, c.dist(d));
 
         var e = new Vector(42, 12);
@@ -47,12 +47,12 @@ class VectorTest {
         assertEquals(e.add(e).add(e).add(e).add(e), e.multiply(5));
 
         assertEquals(Vector.ORIGIN, Vector.origin(2));
-        assertEquals(Vector.ORIGIN, Vector.ORIGIN.negative());
+        assertEquals(Vector.ORIGIN, Vector.ORIGIN.negate());
         assertEquals(Vector.ORIGIN, Vector.ORIGIN.rotateRight());
         assertEquals(Vector.NORTH, Vector.ORIGIN.add(Vector.NORTH));
         assertEquals(Vector.SOUTH, Vector.fromDirection(Direction.SOUTH).add(Vector.ORIGIN));
         assertEquals(Vector.fromChar('R'), Vector.fromChar('n').rotateRight());
-        assertEquals(Vector.fromChar('L'), Vector.fromChar('s').negative().rotateLeft());
+        assertEquals(Vector.fromChar('L'), Vector.fromChar('s').negate().rotateLeft());
 
         assertEquals("(42, 12)", new Vector(42, 12).toString());
         assertEquals("(0, 1)", Vector.NORTH.toString());
@@ -70,7 +70,7 @@ class VectorTest {
 
         a = a.add(b).sub(new Vector(2, 2, 14));
         assertEquals(new Vector(40, 10, 300), a);
-        assertEquals(new Vector(-40, -10, -300), a.negative());
+        assertEquals(new Vector(-40, -10, -300), a.negate());
 
         var c = new Vector(42, 12, -3);
         assertEquals(Vector.origin(c.dim()), c.multiply(0));
@@ -80,8 +80,8 @@ class VectorTest {
         assertEquals(c.add(c.multiply(7)).sub(c.multiply(4)), c.multiply(4));
 
         assertEquals(42 + 12 + 3, c.dist());
-        assertEquals(c.dist(), c.negative().dist());
-        assertEquals(c.dist() * 3, c.negative().add(c.multiply(4)).dist());
+        assertEquals(c.dist(), c.negate().dist());
+        assertEquals(c.dist() * 3, c.negate().add(c.multiply(4)).dist());
 
         assertEquals("(42, 12, -3)", c.toString());
 
@@ -110,8 +110,8 @@ class VectorTest {
         assertEquals(c.add(c.multiply(7)).sub(c.multiply(4)), c.multiply(4));
 
         assertEquals(42 + 12 + 3, c.dist());
-        assertEquals(c.dist(), c.negative().dist());
-        assertEquals(c.dist() * 3, c.negative().add(c.multiply(4)).dist());
+        assertEquals(c.dist(), c.negate().dist());
+        assertEquals(c.dist() * 3, c.negate().add(c.multiply(4)).dist());
 
         assertEquals("(0, -1, 2, -3, 4, -5, 6, -7, 8, -9, 10, -11)", b.toString());
 
