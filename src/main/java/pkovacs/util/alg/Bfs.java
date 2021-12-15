@@ -14,13 +14,17 @@ import java.util.function.Predicate;
  * The input is a directed graph (implicitly defined by a neighbor provider function) and one or more source nodes.
  * The nodes of the graph often represent different states of a puzzle, and the directed edges represent the feasible
  * steps. The neighbor provider function has to provide for each node {@code u} the collection of neighbor nodes
- * reachable form {@code u} via directed edges.
+ * reachable form {@code u} via directed edges. This function is applied at most once for each node, when the
+ * algorithm advances from that node.
  * <p>
  * A target predicate can also be specified in order to find path to a single node instead of all nodes.
  * The algorithm terminates when a shortest path is found for at least one target node (more precisely, for each
- * target node having minimum distance). This way, we can search paths even in an infinite graph of feasible states
- * and steps.
+ * target node having minimum distance). This way, paths can be searched even in an infinite graph if the edges
+ * are generated on-the-fly when requested by the algorithm. For example, nodes and edges might represent feasible
+ * states and steps of a combinatorial problem, and we might not know or do not want to enumerate all possible
+ * states in advance.
  *
+ * @see Dijkstra
  * @see ShortestPath
  */
 public final class Bfs {

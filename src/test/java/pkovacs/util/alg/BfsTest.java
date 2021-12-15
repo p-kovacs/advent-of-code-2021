@@ -12,6 +12,7 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.MultimapBuilder;
 import org.junit.jupiter.api.Test;
 import pkovacs.util.InputUtils;
+import pkovacs.util.data.CharTable;
 import pkovacs.util.data.Tile;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -71,19 +72,18 @@ class BfsTest {
     }
 
     @Test
-    void testMaze() throws Exception {
+    void testMaze() {
         // We have to find the shortest path in a maze from the top left tile to the bottom right tile.
         // See maze.txt, '#' represents a wall tile, '.' represents an empty tile.
 
-        var maze = InputUtils.readCharMatrix(InputUtils.getPath(getClass(), "maze.txt"));
-        int rowCount = maze.length;
-        int colCount = maze[0].length;
+        var input = InputUtils.readCharMatrix(InputUtils.getPath(getClass(), "maze.txt"));
+        var maze = new CharTable(input);
 
         var start = new Tile(0, 0);
-        var end = new Tile(rowCount - 1, colCount - 1);
+        var end = new Tile(maze.rowCount() - 1, maze.colCount() - 1);
 
         var result = Bfs.findPath(start,
-                tile -> tile.neighbors(t -> t.isValid(rowCount, colCount) && maze[t.row()][t.col()] == '.'),
+                tile -> maze.neighborCells(tile).filter(t -> maze.get(t) == '.').toList(),
                 end::equals);
 
         assertTrue(result.isPresent());
@@ -155,13 +155,13 @@ class BfsTest {
                 IntStream.rangeClosed(0, 3).mapToObj(i -> concat(c, i).toList()).toList();
 
         var start = List.of(1, 0);
-        var target = List.of(1, 0, 1, 0, 0, 1, 2, 3);
+        var target = List.of(1, 0, 1, 0, 0, 1, 2);
         Predicate<List<Integer>> predicate = target::equals;
 
         var path = Bfs.findPath(start, neighborProvider, predicate);
 
         assertTrue(path.isPresent());
-        assertEquals(6, path.get().dist());
+        assertEquals(5, path.get().dist());
         assertEquals(target, path.get().node());
     }
 

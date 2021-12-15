@@ -1,40 +1,45 @@
 package pkovacs.util.alg;
 
-import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.PriorityQueue;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import pkovacs.util.alg.Dijkstra.Edge;
-
 /**
- * Implements a general algorithm for finding shortest paths, which is a more efficient version of the classic
- * Bellman-Ford algorithm. Namely, it is the
- * <a href="https://en.wikipedia.org/wiki/Shortest_Path_Faster_Algorithm">SPFA algorithm</a>.
- * This algorithm is significantly slower than {@link Dijkstra}, but it also supports negative edge weights.
+ * Implements <a href="https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm">Dijkstra's algorithm</a> for
+ * finding shortest paths.
  * <p>
  * The input is a directed graph with long integer edge weights (implicitly defined by an edge provider function)
  * and one or more source nodes. The edge provider function has to provide for each node {@code u} a collection of
- * {@code (node, weight)} pairs ({@link Dijkstra.Edge} objects) describing the outgoing directed edges of
- * {@code u}. This function might be applied to a single node multiple times as necessary in this algorithm.
+ * {@code (node, weight)} pairs ({@link Edge} objects) describing the outgoing directed edges of {@code u}.
+ * This function is applied at most once for each node, when the algorithm advances from that node.
  * <p>
- * This algorithm also supports negative edge weights, but the graph must not contain a directed cycle with negative
- * total weight. The current implementation might not terminate for such input. If there are no negative weights,
- * use {@link Dijkstra} instead, because it is faster.
+ * This algorithm only supports non-negative edge weights. If you need negative weights, use {@link ShortestPath}
+ * instead.
  * <p>
  * A target predicate can also be specified in order to find path to a single node instead of all nodes.
- * However, in contrast with {@link Dijkstra}, it does not make the search process faster for this algorithm, and
- * the underlying graph must be finite.
+ * The algorithm terminates when a shortest path is found for at least one target node (more precisely, for each
+ * target node having minimum distance). This way, paths can be searched even in an infinite graph if the edges
+ * are generated on-the-fly when requested by the algorithm. For example, nodes and edges might represent feasible
+ * states and steps of a combinatorial problem, and we might not know or do not want to enumerate all possible
+ * states in advance.
  *
- * @see Dijkstra
  * @see Bfs
+ * @see ShortestPath
  */
-public final class ShortestPath {
+public final class Dijkstra {
 
-    private ShortestPath() {
+    /**
+     * Represents an outgoing directed edge of a node being evaluated (expanded) by this algorithm. It is a record
+     * containing the endpoint (target node) and the weight of the edge.
+     */
+    public static record Edge<T>(T endNode, long weight) {}
+
+    private Dijkstra() {
     }
 
     /**
@@ -87,27 +92,43 @@ public final class ShortestPath {
             Predicate<? super T> targetPredicate) {
         var results = new HashMap<T, PathResult<T>>();
 
-        var queue = new ArrayDeque<T>();
+        var queue = new PriorityQueue<Pair<T>>();
         for (T source : sources) {
             results.put(source, new PathResult<>(source, 0, targetPredicate.test(source), null));
-            queue.add(source);
+            queue.add(new Pair<>(source, 0));
         }
 
+        var processed = new HashSet<T>();
         while (!queue.isEmpty()) {
-            T node = queue.poll();
+            var pair = queue.poll();
+            T node = pair.node;
+            if (!processed.add(node)) {
+                continue;
+            }
+
             var result = results.get(node);
+            if (result.isTarget()) {
+                break;
+            }
             for (var edge : edgeProvider.apply(node)) {
                 var neighbor = edge.endNode();
-                var dist = result.dist() + edge.weight();
+                var dist = pair.dist + edge.weight();
                 var current = results.get(neighbor);
                 if (current == null || dist < current.dist()) {
                     results.put(neighbor, new PathResult<>(neighbor, dist, targetPredicate.test(neighbor), result));
-                    queue.add(neighbor);
+                    queue.add(new Pair<>(neighbor, dist));
                 }
             }
         }
 
         return results;
+    }
+
+    private static record Pair<T>(T node, long dist) implements Comparable<Pair<T>> {
+        @Override
+        public int compareTo(Pair<T> other) {
+            return Long.compare(dist, other.dist);
+        }
     }
 
 }
