@@ -2,8 +2,8 @@ package pkovacs.aoc.y2021;
 
 import pkovacs.aoc.AocUtils;
 import pkovacs.util.InputUtils;
-import pkovacs.util.alg.ShortestPath;
-import pkovacs.util.alg.ShortestPath.Edge;
+import pkovacs.util.alg.Dijkstra;
+import pkovacs.util.alg.Dijkstra.Edge;
 import pkovacs.util.data.IntTable;
 import pkovacs.util.data.Tile;
 
@@ -23,7 +23,7 @@ public class Day15 {
 
         var start = new Tile(0, 0);
         var target = new Tile(table.rowCount() - 1, table.colCount() - 1);
-        var path = ShortestPath.findPath(start,
+        var path = Dijkstra.findPath(start,
                 tile -> table.neighborCells(tile).map(n -> new Edge<>(n, table.get(n))).toList(),
                 target::equals);
 
