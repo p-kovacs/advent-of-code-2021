@@ -23,7 +23,7 @@ public class Day16 {
         var sb = new StringBuilder();
         for (var c : input.toCharArray()) {
             var binary = Integer.toBinaryString(InputUtils.parseInt(c));
-            sb.append("0000".substring(0, 4 - binary.length())).append(binary);
+            sb.append("0000", 0, 4 - binary.length()).append(binary);
         }
         return sb.toString();
     }
