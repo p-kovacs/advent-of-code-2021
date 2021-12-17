@@ -3,29 +3,28 @@ package pkovacs.aoc.y2021;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import pkovacs.aoc.AocUtils;
 import pkovacs.util.InputUtils;
+import pkovacs.util.data.IntTable;
 
 public class Day04 {
 
     public static void main(String[] args) {
         var input = InputUtils.readString(AocUtils.getInputPath());
-        var parts = input.split("\n\n", 2);
+        var blocks = InputUtils.collectLineBlocks(input);
 
-        var selected = InputUtils.parseInts(parts[0]);
-        var boardInput = parts[1].split("\n\n");
+        var selected = InputUtils.parseInts(blocks.get(0).get(0));
+        var boardInput = blocks.subList(1, blocks.size());
 
-        var boards = new ArrayList<Board>();
-        Stream.of(boardInput).map(Board::new).forEach(boards::add);
+        var boards = new ArrayList<Board>(boardInput.stream().map(Board::new).toList());
 
         var winnerScores = new ArrayList<Long>();
         for (int num : selected) {
             for (var board : boards) {
                 board.mark(num);
                 if (board.isWinner()) {
-                    winnerScores.add(num * board.getSumOfNonMarked());
+                    winnerScores.add(num * (long) board.values().filter(v -> v != -1).sum());
                 }
             }
             boards.removeIf(Board::isWinner);
@@ -35,37 +34,19 @@ public class Day04 {
         System.out.println("Part 2: " + winnerScores.get(winnerScores.size() - 1));
     }
 
-    private static class Board {
+    private static class Board extends IntTable {
 
-        static final int SIZE = 5;
-
-        int[] data;
-
-        public Board(String input) {
-            data = InputUtils.parseInts(input);
-            if (data.length != SIZE * SIZE) {
-                throw new IllegalArgumentException();
-            }
+        Board(List<String> lines) {
+            super(lines.stream().map(InputUtils::parseInts).toArray(int[][]::new));
         }
 
         void mark(int num) {
-            IntStream.range(0, data.length).filter(i -> data[i] == num).forEach(i -> data[i] = -1);
+            updateAll(v -> v == num ? -1 : v);
         }
 
         boolean isWinner() {
-            return IntStream.range(0, SIZE).anyMatch(k -> isMarkedRow(k) || isMarkedCol(k));
-        }
-
-        boolean isMarkedRow(int index) {
-            return IntStream.range(0, SIZE).allMatch(k -> data[index * SIZE + k] == -1);
-        }
-
-        boolean isMarkedCol(int index) {
-            return IntStream.range(0, SIZE).allMatch(k -> data[index + k * SIZE] == -1);
-        }
-
-        long getSumOfNonMarked() {
-            return IntStream.of(data).filter(x -> x != -1).sum();
+            return IntStream.range(0, rowCount())
+                    .anyMatch(i -> rowValues(i).allMatch(v -> v == -1) || colValues(i).allMatch(v -> v == -1));
         }
 
     }
