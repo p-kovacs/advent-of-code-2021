@@ -17,6 +17,7 @@ public class Day09 {
 
         System.out.println("Part 1: " + solve1(table));
         System.out.println("Part 2: " + solve2(table));
+//        System.out.println("Part 2: " + solve2Recursive(input)); // alternative solution
     }
 
     private static long solve1(IntTable table) {
@@ -44,6 +45,34 @@ public class Day09 {
         var bfsResult = Bfs.run(tile,
                 t -> table.neighborCells(t).filter(n -> table.get(n) != 9).toList());
         return bfsResult.size();
+    }
+
+    private static long solve2Recursive(char[][] map) {
+        var basinSizes = new ArrayList<Long>();
+        for (int i = 0; i < map.length; i++) {
+            for (int j = 0; j < map[0].length; j++) {
+                if (map[i][j] != '9') {
+                    basinSizes.add(calculateBasinSizeRecursive(map, i, j));
+                }
+            }
+        }
+
+        var array = Longs.toArray(basinSizes);
+        Longs.sortDescending(array);
+        return array[0] * array[1] * array[2];
+    }
+
+    private static long calculateBasinSizeRecursive(char[][] map, int i, int j) {
+        if (i < 0 || i >= map.length || j < 0 || j >= map[0].length || map[i][j] == '9') {
+            return 0;
+        } else {
+            map[i][j] = '9';
+            return 1
+                    + calculateBasinSizeRecursive(map, i - 1, j)
+                    + calculateBasinSizeRecursive(map, i + 1, j)
+                    + calculateBasinSizeRecursive(map, i, j - 1)
+                    + calculateBasinSizeRecursive(map, i, j + 1);
+        }
     }
 
 }
