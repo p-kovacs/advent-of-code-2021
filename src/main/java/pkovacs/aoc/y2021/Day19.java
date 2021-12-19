@@ -2,7 +2,6 @@ package pkovacs.aoc.y2021;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -65,8 +64,12 @@ public class Day19 {
             int orientation = r;
             var set1 = data.get(i);
             var rotated = data.get(j).stream().map(v -> v.rotate(orientation)).toList();
-            for (var v1 : set1) {
-                for (var v2 : rotated) {
+
+            // Since at least 12 overlapping vectors are required, we can skip 11 vectors from the (rotated) vectors
+            // corresponding to scanner j and match the others to each vector corresponding to scanner i
+            var toAssign = rotated.subList(OVERLAP_LIMIT - 1, rotated.size());
+            for (var v2 : toAssign) {
+                for (var v1 : set1) {
                     var delta = v1.sub(v2);
                     long overlapSize = rotated.stream().map(delta::add).filter(set1::contains).count();
                     if (overlapSize >= OVERLAP_LIMIT) {
