@@ -30,8 +30,12 @@ public class IntTable extends AbstractTable<Integer> {
     /**
      * Creates a new table by wrapping the given {@code int[][]} array.
      * The array is used directly, so changes to it are reflected in the table, and vice-versa.
+     * The "rows" of the given matrix must have the same length.
      */
     public IntTable(int[][] data) {
+        if (IntStream.range(1, data.length).anyMatch(i -> data[i].length != data[0].length)) {
+            throw new IllegalArgumentException("Rows must have the same length.");
+        }
         this.data = data;
     }
 
@@ -196,6 +200,13 @@ public class IntTable extends AbstractTable<Integer> {
      */
     public int max() {
         return values().max().orElseThrow();
+    }
+
+    /**
+     * Returns the count of the given value among all values contained in this table.
+     */
+    public int count(int value) {
+        return (int) values().filter(v -> v == value).count();
     }
 
     @Override

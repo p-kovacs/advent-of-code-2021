@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class BfsTest {
 
     @Test
-    void testSimpleGraph() {
+    void testWithSimpleGraph() {
         ListMultimap<String, String> graph = MultimapBuilder.hashKeys().arrayListValues().build();
         graph.put("A", "B");
         graph.put("A", "C");
@@ -72,11 +72,11 @@ class BfsTest {
     }
 
     @Test
-    void testMaze() {
+    void testWithMaze() {
         // We have to find the shortest path in a maze from the top left tile to the bottom right tile.
         // See maze.txt, '#' represents a wall tile, '.' represents an empty tile.
 
-        var input = InputUtils.readCharMatrix(InputUtils.getPath(getClass(), "maze.txt"));
+        var input = InputUtils.readLines(InputUtils.getPath(getClass(), "maze.txt"));
         var maze = new CharTable(input);
 
         var start = new Tile(0, 0);
@@ -97,7 +97,7 @@ class BfsTest {
     }
 
     @Test
-    void testJugs() {
+    void testWithJugs() {
         // A simple puzzle also featured in the movie "Die Hard 3". :)
         // We have a 3-liter jug, a 5-liter jug, and a fountain. Let's measure 4 liters of water.
         // BFS algorithm can be used for finding the optimal path in an "implicit graph": the nodes represent

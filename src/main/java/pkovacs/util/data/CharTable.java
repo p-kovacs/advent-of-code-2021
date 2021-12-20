@@ -1,6 +1,7 @@
 package pkovacs.util.data;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -32,9 +33,21 @@ public class CharTable extends AbstractTable<Character> {
     /**
      * Creates a new table by wrapping the given {@code char[][]} array.
      * The array is used directly, so changes to it are reflected in the table, and vice-versa.
+     * The "rows" of the given matrix must have the same length.
      */
     public CharTable(char[][] data) {
+        if (IntStream.range(1, data.length).anyMatch(i -> data[i].length != data[0].length)) {
+            throw new IllegalArgumentException("Rows must have the same length.");
+        }
         this.data = data;
+    }
+
+    /**
+     * Creates a new table from a list of strings. The rows of the table will represent the strings in the list,
+     * which must have the same length.
+     */
+    public CharTable(List<String> data) {
+        this(data.stream().map(String::toCharArray).toArray(char[][]::new));
     }
 
     /**
@@ -163,6 +176,13 @@ public class CharTable extends AbstractTable<Character> {
      */
     public Stream<Character> values(int startRow, int startCol, int endRow, int endCol) {
         return cells(startRow, startCol, endRow, endCol).map(this::get);
+    }
+
+    /**
+     * Returns the count of the given value among all values contained in this table.
+     */
+    public int count(char value) {
+        return (int) values().filter(v -> v == value).count();
     }
 
     @Override

@@ -18,8 +18,8 @@ import pkovacs.util.alg.Dijkstra.Edge;
  * <p>
  * The input is a directed graph with long integer edge weights (implicitly defined by an edge provider function)
  * and one or more source nodes. The edge provider function has to provide for each node {@code u} a collection of
- * {@code (node, weight)} pairs ({@link Dijkstra.Edge} objects) describing the outgoing directed edges of
- * {@code u}. This function might be applied to a single node multiple times as necessary in this algorithm.
+ * (node, weight) pairs ({@link Dijkstra.Edge} objects) describing the outgoing directed edges of {@code u}.
+ * This function might be applied to a single node multiple times as necessary in this algorithm.
  * <p>
  * This algorithm also supports negative edge weights, but the graph must not contain a directed cycle with negative
  * total weight. The current implementation might not terminate for such input. If there are no negative weights,

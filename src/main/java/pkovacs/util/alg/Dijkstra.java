@@ -15,18 +15,18 @@ import java.util.function.Predicate;
  * <p>
  * The input is a directed graph with long integer edge weights (implicitly defined by an edge provider function)
  * and one or more source nodes. The edge provider function has to provide for each node {@code u} a collection of
- * {@code (node, weight)} pairs ({@link Edge} objects) describing the outgoing directed edges of {@code u}.
- * This function is applied at most once for each node, when the algorithm advances from that node.
+ * (node, weight) pairs ({@link Edge} objects) describing the outgoing directed edges of {@code u}. This function
+ * is applied at most once for each node, when the algorithm advances from that node.
  * <p>
- * This algorithm only supports non-negative edge weights. If you need negative weights, use {@link ShortestPath}
- * instead.
+ * This algorithm only supports non-negative edge weights. If you need negative weights as well, use
+ * {@link ShortestPath} instead.
  * <p>
  * A target predicate can also be specified in order to find path to a single node instead of all nodes.
  * The algorithm terminates when a shortest path is found for at least one target node (more precisely, for each
- * target node having minimum distance). This way, paths can be searched even in an infinite graph if the edges
- * are generated on-the-fly when requested by the algorithm. For example, nodes and edges might represent feasible
- * states and steps of a combinatorial problem, and we might not know or do not want to enumerate all possible
- * states in advance.
+ * target node having minimum distance). This way, paths can be searched even in an infinite graph provided that
+ * the edges are generated on-the-fly when requested by the algorithm. For example, nodes and edges might represent
+ * feasible states and steps of a combinatorial problem, and we might not know or do not want to enumerate all
+ * possible states in advance.
  *
  * @see Bfs
  * @see ShortestPath

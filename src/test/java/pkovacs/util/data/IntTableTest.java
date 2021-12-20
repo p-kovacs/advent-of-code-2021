@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class IntTableTest extends AbstractTableTest<Integer> {
@@ -39,10 +40,30 @@ class IntTableTest extends AbstractTableTest<Integer> {
         table.updateAll(v -> v / 2);
 
         assertContentEquals(new int[][] { { 25, 1, 2, 3 }, { 100, 101, 102, 103 }, { 200, 201, -5, 203 } }, table);
+        assertEquals(1, table.count(101));
+        assertEquals(0, table.count(42));
 
         table.fill(42);
 
         assertContentEquals(new int[][] { { 42, 42, 42, 42 }, { 42, 42, 42, 42 }, { 42, 42, 42, 42 } }, table);
+        assertEquals(0, table.count(101));
+        assertEquals(12, table.count(42));
+    }
+
+    @Test
+    void testWrappedMatrix() {
+        var matrix = new int[][] { { 0, 1, 2, 3 }, { 100, 101, 102, 103 }, { 200, 201, 202, 203 } };
+        var table = new IntTable(matrix);
+
+        assertContentEquals(matrix, table);
+
+        matrix[0][0] = 42;
+        table.set(2, 2, -1);
+
+        assertContentEquals(new int[][] { { 42, 1, 2, 3 }, { 100, 101, 102, 103 }, { 200, 201, -1, 203 } }, table);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> new IntTable(new int[][] { { 0, 1 }, { 10, 20 }, { 100, 200, 300 } }));
     }
 
     @Test

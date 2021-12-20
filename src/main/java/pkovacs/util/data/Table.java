@@ -3,6 +3,7 @@ package pkovacs.util.data;
 import java.util.Arrays;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -27,8 +28,12 @@ public class Table<T> extends AbstractTable<T> {
     /**
      * Creates a new table by wrapping the given {@code T[][]} array.
      * The array is used directly, so changes to it are reflected in the table, and vice-versa.
+     * The "rows" of the given matrix must have the same length.
      */
     public Table(T[][] data) {
+        if (IntStream.range(1, data.length).anyMatch(i -> data[i].length != data[0].length)) {
+            throw new IllegalArgumentException("Rows must have the same length.");
+        }
         this.data = data;
     }
 
