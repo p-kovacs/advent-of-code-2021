@@ -1,8 +1,6 @@
 package pkovacs.aoc.y2021;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import pkovacs.aoc.AocUtils;
 import pkovacs.util.InputUtils;
@@ -22,48 +20,39 @@ public class Day20 {
     }
 
     private static long solve(String alg, List<String> imageInput, int stepCount) {
-        var img = new Image(imageInput);
+        var img = new Image(new CharTable(imageInput), '.');
         for (int step = 0; step < stepCount; step++) {
-            // Build new image by shifting indices:
-            // the pixel (i,j) of the new image is derived from the pixel (i-1,j-1) of the old image
-            var newMap = new HashMap<Tile, Character>();
-            for (int i = 0; i < img.size + 2; i++) {
-                for (int j = 0; j < img.size + 2; j++) {
-                    int k = 0;
-                    for (int di = -2; di <= 0; di++) {
-                        for (int dj = -2; dj <= 0; dj++) {
-                            k = k * 2 + (img.isLit(i + di, j + dj) ? 1 : 0);
-                        }
-                    }
-                    newMap.put(new Tile(i, j), alg.charAt(k));
-                }
-            }
-
-            char others = alg.charAt(img.others == '.' ? 0 : alg.length() - 1);
-            img = new Image(newMap, img.size + 2, others);
+            img = img.enhance(alg);
         }
-
-        return img.map.entrySet().stream().filter(e -> e.getValue() == '#').count();
+        return img.table.count('#');
     }
 
-    private static record Image(Map<Tile, Character> map, int size, char others) {
+    /**
+     * Stores an image as a {@link CharTable} and a single character that represents the infinite "border"
+     * around the table.
+     */
+    private static record Image(CharTable table, char border) {
 
-        Image(List<String> lines) {
-            this(collectMap(lines), lines.size(), '.');
+        /**
+         * Builds the "enhanced" image from this image according to the given "algorithm".
+         * Indices are shifted to ensure that they remain non-negative: the pixel (i,j) of the returned image
+         * is derived from the pixel (i-1,j-1) of this image.
+         */
+        private Image enhance(String alg) {
+            var newTable = new CharTable(table.rowCount() + 2, table.colCount() + 2,
+                    (i, j) -> alg.charAt(getAlgIndex(i - 1, j - 1)));
+            char newBorder = alg.charAt(border == '.' ? 0 : alg.length() - 1);
+            return new Image(newTable, newBorder);
         }
 
-        private static Map<Tile, Character> collectMap(List<String> lines) {
-            var map = new HashMap<Tile, Character>();
-            for (int i = 0; i < lines.size(); i++) {
-                for (int j = 0; j < lines.get(i).length(); j++) {
-                    map.put(new Tile(i, j), lines.get(i).charAt(j));
-                }
-            }
-            return map;
+        private int getAlgIndex(int i, int j) {
+            return Tile.stream(i - 1, j - 1, i + 2, j + 2)
+                    .mapToInt(this::getBit)
+                    .reduce(0, (a, b) -> a << 1 | b);
         }
 
-        boolean isLit(int r, int c) {
-            return map.getOrDefault(new Tile(r, c), others) == '#';
+        private int getBit(Tile tile) {
+            return (table.containsCell(tile) ? table.get(tile) : border) == '#' ? 1 : 0;
         }
 
     }
