@@ -58,8 +58,8 @@ public class Day23 {
                     (i, j) -> j < lines.get(i).length() ? lines.get(i).charAt(j) : ' ');
         }
 
-        State(State state) {
-            super(state);
+        State(State other) {
+            super(other);
         }
 
         /**
@@ -85,6 +85,7 @@ public class Day23 {
         List<Tile> fromTiles() {
             return cells(1, 1, rowCount() - 1, colCount() - 1)
                     .filter(t -> get(t) >= 'A' && get(t) <= 'D')
+                    .filter(this::canBeMoved)
                     .toList();
         }
 
@@ -101,16 +102,23 @@ public class Day23 {
             return newState;
         }
 
+        boolean canBeMoved(Tile from) {
+            // A letter can be moved if it is on the hallway or at the top of the "stack" of a room, unless all
+            // letters in that room are already organized
+            var above = new Tile(from.row() - 1, from.col());
+            return from.row() == HALLWAY_ROW || (isEmpty(above) && !isOrganizedBelow(above));
+        }
+
         long calculateEnergy(Tile from, Tile to) {
             char letter = get(from);
 
-            // Do not move from hallway to hallway
+            // Moving from hallway to hallway is not allowed
             if (from.row() == HALLWAY_ROW && to.row() == HALLWAY_ROW) {
                 return INFEASIBLE_ENERGY;
             }
 
-            // Do not move a letter if it is already organized in the appropriate room together with all tiles below it
-            if (from.col() == column(letter) && isOrganizedBelow(from)) {
+            // Do not move within the same column (room)
+            if (from.col() == to.col()) {
                 return INFEASIBLE_ENERGY;
             }
 
@@ -139,6 +147,10 @@ public class Day23 {
 
         boolean isEmpty(int i, int j) {
             return get(i, j) == '.';
+        }
+
+        boolean isEmpty(Tile t) {
+            return get(t) == '.';
         }
 
         boolean isOrganized() {
