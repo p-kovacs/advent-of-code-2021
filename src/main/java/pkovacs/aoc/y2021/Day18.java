@@ -95,7 +95,8 @@ public class Day18 {
         }
 
         private void reduce() {
-            while (explode() || split()) {}
+            while (explode() || split()) {
+            }
         }
 
         private boolean explode() {
@@ -120,7 +121,7 @@ public class Day18 {
             } else if (x.left.isSimple() && x.right.isSimple()) {
                 return depth == 4 ? x : null;
             } else {
-                return select(findToExplode(x.left,depth + 1), findToExplode(x.right,depth + 1));
+                return select(findToExplode(x.left, depth + 1), findToExplode(x.right, depth + 1));
             }
         }
 

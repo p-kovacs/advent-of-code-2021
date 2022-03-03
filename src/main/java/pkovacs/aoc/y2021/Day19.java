@@ -55,9 +55,9 @@ public class Day19 {
     }
 
     /**
-     * Tries to adjust the data of scanner j to the data of scanner i, and returns true if the adjustment was
-     * successful. If the two scanners don't have at least 12 overlapping beacons, this method returns false
-     * without changing any data.
+     * Attempts to adjust the data of scanner j to the data of scanner i, and returns true if the adjustment was
+     * successful. If the two scanners don't have at least {@link #OVERLAP_LIMIT} overlapping beacons, this method
+     * returns false without changing any data.
      */
     private static boolean adjust(List<Set<Vector>> data, List<Vector> scanners, int i, int j) {
         for (int r = 0; r < 24; r++) {
