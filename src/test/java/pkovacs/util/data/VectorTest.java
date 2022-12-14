@@ -1,5 +1,7 @@
 package pkovacs.util.data;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -53,6 +55,13 @@ class VectorTest {
         assertEquals(Vector.SOUTH, Vector.fromDirection(Direction.SOUTH).add(Vector.ORIGIN));
         assertEquals(Vector.fromChar('R'), Vector.fromChar('n').rotateRight());
         assertEquals(Vector.fromChar('L'), Vector.fromChar('s').negate().rotateLeft());
+
+        assertEquals(new Vector(-42, 12), e.mirrorHorizontally());
+        assertEquals(new Vector(42, -12), e.mirrorVertically());
+        assertEquals(e, e.mirrorHorizontally().mirrorHorizontally());
+        assertEquals(e, e.mirrorVertically().mirrorVertically());
+        assertEquals(e.negate(), e.mirrorHorizontally().mirrorVertically());
+        assertEquals(e.negate(), e.mirrorVertically().mirrorHorizontally());
 
         assertEquals("(42, 12)", new Vector(42, 12).toString());
         assertEquals("(0, 1)", Vector.NORTH.toString());
@@ -117,6 +126,38 @@ class VectorTest {
 
         assertThrows(UnsupportedOperationException.class, c::rotateLeft);
         assertThrows(UnsupportedOperationException.class, c::rotateRight);
+    }
+
+    @Test
+    void testOrdering() {
+        var list = List.of(
+                new Vector(42, 12),
+                new Vector(41, 12),
+                new Vector(42, 11),
+                new Vector(42, 13),
+                new Vector(43, 12),
+                new Vector(42, 12, 3),
+                new Vector(42, 12, 2),
+                new Vector(42, 12, 1),
+                new Vector(5, 8, 1, 0),
+                new Vector(5, 8, 1, -1),
+                new Vector(5, 8, 1, 1),
+                new Vector(5, 8, 0, 0));
+        var sortedList = List.of(
+                new Vector(41, 12),
+                new Vector(42, 11),
+                new Vector(42, 12),
+                new Vector(42, 13),
+                new Vector(43, 12),
+                new Vector(42, 12, 1),
+                new Vector(42, 12, 2),
+                new Vector(42, 12, 3),
+                new Vector(5, 8, 0, 0),
+                new Vector(5, 8, 1, -1),
+                new Vector(5, 8, 1, 0),
+                new Vector(5, 8, 1, 1));
+
+        assertEquals(sortedList, list.stream().sorted().toList());
     }
 
 }

@@ -7,13 +7,14 @@ import static java.util.stream.Collectors.joining;
 
 /**
  * Represents a position vector in D-dimension space as an immutable array of {@code long} coordinates.
- * Provides methods for vector operations and for obtaining the Manhattan distance between two vectors.
+ * Provides methods for various vector operations and for obtaining the Manhattan distance between two vectors.
+ * Lexicographical ordering is also supported.
  * <p>
  * Some features are specific to 2D vectors, e.g., directions and rotation. The coordinates are interpreted
  * as usual in Math: (0, 1) means {@link #NORTH}, (0, -1) means {@link #SOUTH}, (1, 0) means {@link #EAST},
  * (-1, 0) means {@link #WEST}, and (0, 0) is the {@link #ORIGIN}.
  */
-public class Vector {
+public class Vector implements Comparable<Vector> {
 
     /** The 2D origin vector: (0, 0). For other dimensions, use {@link #origin(int)}. */
     public static final Vector ORIGIN = new Vector(0, 0);
@@ -49,7 +50,7 @@ public class Vector {
     /**
      * Creates a vector with the given coordinates.
      */
-    public Vector(long[] coords) {
+    public Vector(long... coords) {
         if (coords.length <= 1) {
             throw new IllegalArgumentException("At least two coordinates are required");
         }
@@ -183,13 +184,33 @@ public class Vector {
     }
 
     /**
+     * Returns a new vector obtained by mirroring this 2D vector horizontally.
+     */
+    public Vector mirrorHorizontally() {
+        if (dim() != 2) {
+            throw new UnsupportedOperationException("Supported only for 2D vectors.");
+        }
+        return new Vector(-x(), y());
+    }
+
+    /**
+     * Returns a new vector obtained by mirroring this 2D vector vertically.
+     */
+    public Vector mirrorVertically() {
+        if (dim() != 2) {
+            throw new UnsupportedOperationException("Supported only for 2D vectors.");
+        }
+        return new Vector(x(), -y());
+    }
+
+    /**
      * Returns a new vector obtained by rotating this 2D vector 90 degrees to the right.
      *
      * @throws UnsupportedOperationException if the dimension of this vector is larger than two
      */
     public Vector rotateRight() {
         if (dim() != 2) {
-            throw new UnsupportedOperationException("Only supported for 2D vectors.");
+            throw new UnsupportedOperationException("Supported only for 2D vectors.");
         }
         return new Vector(y(), -x());
     }
@@ -201,7 +222,7 @@ public class Vector {
      */
     public Vector rotateLeft() {
         if (dim() != 2) {
-            throw new UnsupportedOperationException("Only supported for 2D vectors.");
+            throw new UnsupportedOperationException("Supported only for 2D vectors.");
         }
         return new Vector(-y(), x());
     }
@@ -247,6 +268,20 @@ public class Vector {
     @Override
     public String toString() {
         return "(" + Arrays.stream(coords).mapToObj(String::valueOf).collect(joining(", ")) + ")";
+    }
+
+    @Override
+    public int compareTo(Vector other) {
+        if (coords.length != other.coords.length) {
+            return Integer.compare(coords.length, other.coords.length);
+        }
+        for (int i = 0; i < coords.length; i++) {
+            int c = Long.compare(coords[i], other.coords[i]);
+            if (c != 0) {
+                return c;
+            }
+        }
+        return 0;
     }
 
 }
