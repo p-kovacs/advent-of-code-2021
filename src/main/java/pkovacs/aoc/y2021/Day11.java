@@ -3,7 +3,6 @@ package pkovacs.aoc.y2021;
 import java.util.ArrayDeque;
 import java.util.List;
 
-import pkovacs.aoc.AocUtils;
 import pkovacs.util.InputUtils;
 import pkovacs.util.data.IntTable;
 import pkovacs.util.data.Tile;

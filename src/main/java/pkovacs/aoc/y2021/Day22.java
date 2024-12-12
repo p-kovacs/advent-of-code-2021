@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.function.UnaryOperator;
 
-import pkovacs.aoc.AocUtils;
 import pkovacs.util.InputUtils;
 
 public class Day22 {

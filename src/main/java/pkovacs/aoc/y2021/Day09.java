@@ -3,7 +3,6 @@ package pkovacs.aoc.y2021;
 import java.util.ArrayList;
 
 import com.google.common.primitives.Longs;
-import pkovacs.aoc.AocUtils;
 import pkovacs.util.InputUtils;
 import pkovacs.util.alg.Bfs;
 import pkovacs.util.data.IntTable;

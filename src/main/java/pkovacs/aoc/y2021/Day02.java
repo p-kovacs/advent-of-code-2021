@@ -2,7 +2,6 @@ package pkovacs.aoc.y2021;
 
 import java.util.List;
 
-import pkovacs.aoc.AocUtils;
 import pkovacs.util.InputUtils;
 
 public class Day02 {

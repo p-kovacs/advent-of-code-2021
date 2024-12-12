@@ -3,7 +3,6 @@ package pkovacs.aoc.y2021;
 import java.util.function.LongUnaryOperator;
 import java.util.stream.IntStream;
 
-import pkovacs.aoc.AocUtils;
 import pkovacs.util.InputUtils;
 
 public class Day07 {
