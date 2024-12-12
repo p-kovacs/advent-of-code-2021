@@ -26,7 +26,6 @@ import java.util.function.Predicate;
  * possible states in advance.
  *
  * @see Dijkstra
- * @see ShortestPath
  */
 public final class Bfs {
 

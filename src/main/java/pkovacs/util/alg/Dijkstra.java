@@ -12,15 +12,12 @@ import java.util.function.Predicate;
 
 /**
  * Implements <a href="https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm">Dijkstra's algorithm</a> for
- * finding shortest paths.
+ * finding shortest paths. This algorithm only supports non-negative edge weights.
  * <p>
  * The input is a directed graph with long integer edge weights (implicitly defined by an edge provider function)
  * and one or more source nodes. The edge provider function has to provide for each node {@code u} a collection of
  * (node, weight) pairs ({@link Edge} objects) describing the outgoing directed edges of {@code u}. This function
  * is applied at most once for each node, when the algorithm advances from that node.
- * <p>
- * This algorithm only supports non-negative edge weights. If you need negative weights as well, use
- * {@link ShortestPath} instead.
  * <p>
  * A target predicate can also be specified in order to find path to a single node instead of all nodes.
  * The algorithm terminates when a shortest path is found for at least one target node (more precisely, for each
@@ -30,7 +27,6 @@ import java.util.function.Predicate;
  * possible states in advance.
  *
  * @see Bfs
- * @see ShortestPath
  */
 public final class Dijkstra {
 

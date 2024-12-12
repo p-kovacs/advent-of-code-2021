@@ -8,7 +8,7 @@ import java.util.List;
  * Result object for general path search algorithms.
  *
  * @see Bfs
- * @see ShortestPath
+ * @see Dijkstra
  */
 public final class PathResult<T> {
 
