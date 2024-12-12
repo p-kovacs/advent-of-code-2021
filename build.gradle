@@ -2,32 +2,24 @@ plugins {
     id 'java'
 }
 
-sourceCompatibility = 17
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation 'com.google.guava:guava:31.0.1-jre'
+    implementation 'com.google.guava:guava:33.3.1-jre'
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.8.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    testImplementation platform('org.junit:junit-bom:5.11.3')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-test {
+tasks.named('test') {
     useJUnitPlatform()
-}
-
-task run(type: JavaExec) {
-    mainClass = getClassName(project.findProperty('day'))
-    classpath = sourceSets.main.runtimeClasspath
-}
-
-static def getClassName(day) {
-    if (!day) {
-        return null
-    }
-    'pkovacs.aoc.y2021.Day' + (day.length() == 1 ? "0${day}" : day)
 }
