@@ -3,7 +3,6 @@ package pkovacs.aoc.y2021;
 import java.util.HashSet;
 import java.util.Set;
 
-import pkovacs.aoc.AocUtils;
 import pkovacs.util.InputUtils;
 import pkovacs.util.data.Point;
 

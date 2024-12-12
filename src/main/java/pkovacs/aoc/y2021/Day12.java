@@ -10,7 +10,6 @@ import java.util.stream.Stream;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
-import pkovacs.aoc.AocUtils;
 import pkovacs.util.InputUtils;
 
 import static java.util.stream.Collectors.toSet;

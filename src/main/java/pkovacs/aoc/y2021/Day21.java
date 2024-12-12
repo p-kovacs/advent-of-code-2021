@@ -2,7 +2,6 @@ package pkovacs.aoc.y2021;
 
 import java.util.function.Predicate;
 
-import pkovacs.aoc.AocUtils;
 import pkovacs.util.InputUtils;
 import pkovacs.util.data.CounterMap;
 

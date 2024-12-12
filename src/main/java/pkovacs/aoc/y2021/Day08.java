@@ -10,7 +10,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Sets;
-import pkovacs.aoc.AocUtils;
 import pkovacs.util.InputUtils;
 
 public class Day08 {

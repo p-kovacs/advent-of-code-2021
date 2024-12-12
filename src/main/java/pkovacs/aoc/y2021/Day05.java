@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import pkovacs.aoc.AocUtils;
 import pkovacs.util.InputUtils;
 
 public class Day05 {

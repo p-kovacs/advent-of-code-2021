@@ -3,7 +3,6 @@ package pkovacs.aoc.y2021;
 import java.util.List;
 import java.util.stream.Stream;
 
-import pkovacs.aoc.AocUtils;
 import pkovacs.util.InputUtils;
 
 public class Day03 {

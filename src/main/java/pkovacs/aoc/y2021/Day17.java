@@ -1,6 +1,5 @@
 package pkovacs.aoc.y2021;
 
-import pkovacs.aoc.AocUtils;
 import pkovacs.util.InputUtils;
 import pkovacs.util.data.Point;
 

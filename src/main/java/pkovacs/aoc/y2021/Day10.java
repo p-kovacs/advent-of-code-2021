@@ -4,7 +4,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import pkovacs.aoc.AocUtils;
 import pkovacs.util.InputUtils;
 
 public class Day10 {

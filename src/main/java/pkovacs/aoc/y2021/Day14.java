@@ -3,7 +3,6 @@ package pkovacs.aoc.y2021;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import pkovacs.aoc.AocUtils;
 import pkovacs.util.InputUtils;
 import pkovacs.util.data.CounterMap;
 

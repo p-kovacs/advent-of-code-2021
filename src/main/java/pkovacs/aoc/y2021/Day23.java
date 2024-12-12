@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.IntStream;
 
-import pkovacs.aoc.AocUtils;
 import pkovacs.util.InputUtils;
 import pkovacs.util.alg.Dijkstra;
 import pkovacs.util.alg.Dijkstra.Edge;
