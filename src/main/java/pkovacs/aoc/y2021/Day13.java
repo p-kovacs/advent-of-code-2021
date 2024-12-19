@@ -16,8 +16,7 @@ public class Day13 {
         System.out.println("Part 1: " + solve(input, true).size());
         System.out.println("Part 2: " + solve(input, false).size());
 
-        System.out.println();
-        printResult(input);
+        // printResult(input); - needed for the actual solution of part 2
     }
 
     private static Set<Point> solve(String input, boolean stopAfterFirstFold) {
