@@ -40,7 +40,7 @@ public class Day04 {
         }
 
         void mark(int num) {
-            updateAll(v -> v == num ? -1 : v);
+            cells().filter(c -> get(c) == num).forEach(c -> set(c, -1));
         }
 
         boolean isWinner() {

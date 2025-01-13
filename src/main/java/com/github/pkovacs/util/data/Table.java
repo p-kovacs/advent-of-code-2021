@@ -8,29 +8,31 @@ import java.util.stream.Stream;
 
 /**
  * Represents a table (or matrix) with fixed number of rows and columns. This class is essentially a wrapper for a
- * {@code T[][]} array that provides various convenient methods to access and modify the data. A cell of the table
- * is identified by a {@link Tile} object or two integer indices. Most methods of this class are defined in the
+ * {@code V[][]} array providing various convenient methods to access and modify the data. A cell of the table
+ * is identified by a {@link Cell} object or two integer indices. Most methods of this class are defined in the
  * {@link AbstractTable abstract base class}.
  * <p>
  * The {@code equals} and {@code hashCode} methods rely on deep equality check, and the {@code toString} method
  * provides a formatted result, which can be useful for debugging.
  * <p>
- * If your table is going to be "sparse", then consider using Guava's {@link com.google.common.collect.Table} or a
- * Map structure with {@link Tile} keys instead.
+ * For storing a table of {@code int} or {@code char} values, use {@link IntTable} or {@link CharTable} instead of
+ * this general class. Furthermore, if your table is "sparse", consider using a {@code Map} with {@link Cell} or
+ * {@link Point} keys instead (or Guava's {@code Table} class).
  *
+ * @param <V> the type of the values associated with the cells of this table
  * @see IntTable
  * @see CharTable
  */
-public class Table<T> extends AbstractTable<T> {
+public class Table<V> extends AbstractTable<V> {
 
     private final Object[][] data;
 
     /**
-     * Creates a new table by wrapping the given {@code T[][]} array.
-     * The array is used directly, so changes to it are reflected in the table, and vice-versa.
+     * Creates a new table by wrapping the given {@code V[][]} array.
+     * The array is used directly, so changes to it are reflected in the table and vice versa.
      * The "rows" of the given matrix must have the same length.
      */
-    public Table(T[][] data) {
+    public Table(V[][] data) {
         if (IntStream.range(1, data.length).anyMatch(i -> data[i].length != data[0].length)) {
             throw new IllegalArgumentException("Rows must have the same length.");
         }
@@ -39,7 +41,7 @@ public class Table<T> extends AbstractTable<T> {
 
     /**
      * Creates a new table with the given number of rows and columns.
-     * The initial value for each cell will be {@code null}.
+     * The initial value for each cell is {@code null}.
      */
     public Table(int rowCount, int colCount) {
         data = new Object[rowCount][colCount];
@@ -47,9 +49,9 @@ public class Table<T> extends AbstractTable<T> {
 
     /**
      * Creates a new table with the given number of rows and columns, and calculates initial values by applying
-     * the given function to the row and column indices of each cell.
+     * the given function to the indices of each cell.
      */
-    public Table(int rowCount, int colCount, BiFunction<Integer, Integer, ? extends T> function) {
+    public Table(int rowCount, int colCount, BiFunction<Integer, Integer, ? extends V> function) {
         data = new Object[rowCount][colCount];
         for (int i = 0; i < rowCount; i++) {
             for (int j = 0; j < colCount; j++) {
@@ -59,9 +61,9 @@ public class Table<T> extends AbstractTable<T> {
     }
 
     /**
-     * Creates a new table as a copy of the given table.
+     * Creates a new table as a deep copy of the given table.
      */
-    public Table(Table<? extends T> other) {
+    public Table(Table<? extends V> other) {
         data = new Object[other.data.length][];
         for (int i = 0; i < data.length; i++) {
             data[i] = other.data[i].clone();
@@ -80,107 +82,99 @@ public class Table<T> extends AbstractTable<T> {
 
     @Override
     @SuppressWarnings("unchecked")
-    T get0(int row, int col) {
-        return (T) data[row][col];
+    V get0(int row, int col) {
+        return (V) data[row][col];
     }
 
     @Override
-    void set0(int row, int col, T value) {
+    void set0(int row, int col, V value) {
         data[row][col] = value;
     }
 
     @Override
-    Table<T> newInstance(int rowCount, int colCount, BiFunction<Integer, Integer, T> function) {
-        return new Table<T>(rowCount, colCount, function);
+    Table<V> newInstance(int rowCount, int colCount, BiFunction<Integer, Integer, V> function) {
+        return new Table<V>(rowCount, colCount, function);
     }
 
     /**
      * Returns the value associated with the specified cell.
      */
-    public T get(int row, int col) {
+    public V get(int row, int col) {
         return get0(row, col);
     }
 
     /**
      * Returns the value associated with the specified cell.
      */
-    public T get(Tile cell) {
+    public V get(Cell cell) {
         return get0(cell.row(), cell.col());
     }
 
     /**
      * Sets the value associated with the specified cell.
      */
-    public void set(int row, int col, T value) {
+    public void set(int row, int col, V value) {
         data[row][col] = value;
     }
 
     /**
      * Sets the value associated with the specified cell.
      */
-    public void set(Tile cell, T value) {
+    public void set(Cell cell, V value) {
         data[cell.row()][cell.col()] = value;
     }
 
     /**
      * Sets all values in this table to the given value.
      */
-    public void fill(T value) {
+    public void fill(V value) {
         Arrays.stream(data).forEach(rowData -> Arrays.fill(rowData, value));
     }
 
     /**
      * Returns an ordered stream of the values contained in the specified row of this table.
      */
-    public Stream<T> rowValues(int i) {
+    public Stream<V> rowValues(int i) {
         return row(i).map(this::get);
     }
 
     /**
      * Returns an ordered stream of the values contained in the specified column of this table.
      */
-    public Stream<T> colValues(int j) {
+    public Stream<V> colValues(int j) {
         return col(j).map(this::get);
     }
 
     /**
      * Returns an ordered stream of all values contained in this table (row by row).
      */
-    public Stream<T> values() {
+    public Stream<V> values() {
         return cells().map(this::get);
     }
 
-    /**
-     * Returns an ordered stream of the values contained in the given part of this table (row by row).
-     * The given lower bounds for row and column indices are inclusive, but the upper bounds are exclusive.
-     */
-    public Stream<T> values(int startRow, int startCol, int endRow, int endCol) {
-        return cells(startRow, startCol, endRow, endCol).map(this::get);
+    @Override
+    public Table<V> mirrorHorizontally() {
+        return (Table<V>) super.mirrorHorizontally();
     }
 
     @Override
-    public Table<T> mirrorHorizontally() {
-        return (Table<T>) super.mirrorHorizontally();
+    public Table<V> mirrorVertically() {
+        return (Table<V>) super.mirrorVertically();
     }
 
     @Override
-    public Table<T> mirrorVertically() {
-        return (Table<T>) super.mirrorVertically();
+    public Table<V> rotateRight() {
+        return (Table<V>) super.rotateRight();
     }
 
     @Override
-    public Table<T> rotateRight() {
-        return (Table<T>) super.rotateRight();
+    public Table<V> rotateLeft() {
+        return (Table<V>) super.rotateLeft();
     }
 
     @Override
-    public Table<T> rotateLeft() {
-        return (Table<T>) super.rotateLeft();
-    }
-
-    @Override
-    public Table<T> transpose() {
-        return (Table<T>) super.transpose();
+    public Table<V> transpose() {
+        return (Table<V>) super.transpose();
     }
 
     @Override

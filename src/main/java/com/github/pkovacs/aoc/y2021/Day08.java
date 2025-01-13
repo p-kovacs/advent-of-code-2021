@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import com.github.pkovacs.util.Utils;
 import com.google.common.collect.Sets;
 import com.github.pkovacs.util.InputUtils;
 
@@ -65,7 +66,7 @@ public class Day08 {
     }
 
     private static Set<Character> code(String s) {
-        return InputUtils.stream(s).collect(Collectors.toSet());
+        return Utils.charsOf(s).collect(Collectors.toSet());
     }
 
     private static void addCode(Map<Integer, Set<Character>> codes, List<String> digits,

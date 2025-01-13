@@ -3,8 +3,8 @@ package com.github.pkovacs.aoc.y2021;
 import java.util.List;
 
 import com.github.pkovacs.util.InputUtils;
+import com.github.pkovacs.util.data.Cell;
 import com.github.pkovacs.util.data.CharTable;
-import com.github.pkovacs.util.data.Tile;
 
 public class Day20 {
 
@@ -45,13 +45,13 @@ public class Day20 {
         }
 
         private int getAlgIndex(int i, int j) {
-            return Tile.stream(i - 1, j - 1, i + 2, j + 2)
+            return Cell.box(new Cell(i - 1, j - 1), new Cell(i + 1, j + 1))
                     .mapToInt(this::getBit)
-                    .reduce(0, (a, b) -> a << 1 | b);
+                    .reduce(0, (a, b) -> (a << 1) | b);
         }
 
-        private int getBit(Tile tile) {
-            return (table.containsCell(tile) ? table.get(tile) : border) == '#' ? 1 : 0;
+        private int getBit(Cell cell) {
+            return (table.containsCell(cell) ? table.get(cell) : border) == '#' ? 1 : 0;
         }
 
     }

@@ -8,15 +8,15 @@ import java.util.stream.IntStream;
 import com.github.pkovacs.util.InputUtils;
 import com.github.pkovacs.util.alg.Dijkstra;
 import com.github.pkovacs.util.alg.Dijkstra.Edge;
+import com.github.pkovacs.util.data.Cell;
 import com.github.pkovacs.util.data.CharTable;
-import com.github.pkovacs.util.data.Tile;
 
 public class Day23 {
 
     private static final int HALLWAY_ROW = 1;
 
-    private static final Set<Tile> ENTRANCES =
-            Set.of(new Tile(1, 3), new Tile(1, 5), new Tile(1, 7), new Tile(1, 9));
+    private static final Set<Cell> ENTRANCES =
+            Set.of(new Cell(1, 3), new Cell(1, 5), new Cell(1, 7), new Cell(1, 9));
 
     private static final long INFEASIBLE_ENERGY = 1_000_000;
 
@@ -68,9 +68,9 @@ public class Day23 {
             var edges = new ArrayList<Edge<State>>();
 
             // Collect feasible moves
-            var toTiles = toTiles();
-            for (var from : fromTiles()) {
-                for (var to : toTiles) {
+            var toCells = toTiles();
+            for (var from : fromCells()) {
+                for (var to : toCells) {
                     long energy = calculateEnergy(from, to);
                     if (energy < INFEASIBLE_ENERGY) {
                         edges.add(new Edge<>(move(from, to), energy));
@@ -81,34 +81,34 @@ public class Day23 {
             return edges;
         }
 
-        List<Tile> fromTiles() {
-            return cells(1, 1, rowCount() - 1, colCount() - 1)
+        List<Cell> fromCells() {
+            return Cell.box(new Cell(1, 1), new Cell(rowCount() - 2, colCount() - 2))
                     .filter(t -> get(t) >= 'A' && get(t) <= 'D')
                     .filter(this::canBeMoved)
                     .toList();
         }
 
-        List<Tile> toTiles() {
-            return cells(1, 1, rowCount() - 1, colCount() - 1)
+        List<Cell> toTiles() {
+            return Cell.box(new Cell(1, 1), new Cell(rowCount() - 2, colCount() - 2))
                     .filter(t -> get(t) == '.' && !ENTRANCES.contains(t))
                     .toList();
         }
 
-        State move(Tile from, Tile to) {
+        State move(Cell from, Cell to) {
             var newState = new State(this);
             newState.set(from, get(to));
             newState.set(to, get(from));
             return newState;
         }
 
-        boolean canBeMoved(Tile from) {
+        boolean canBeMoved(Cell from) {
             // A letter can be moved if it is on the hallway or at the top of the "stack" of a room, unless all
             // letters in that room are already organized
-            var above = new Tile(from.row() - 1, from.col());
+            var above = new Cell(from.row() - 1, from.col());
             return from.row() == HALLWAY_ROW || (isEmpty(above) && !isOrganizedBelow(above));
         }
 
-        long calculateEnergy(Tile from, Tile to) {
+        long calculateEnergy(Cell from, Cell to) {
             char letter = get(from);
 
             // Moving from hallway to hallway is not allowed
@@ -148,7 +148,7 @@ public class Day23 {
             return get(i, j) == '.';
         }
 
-        boolean isEmpty(Tile t) {
+        boolean isEmpty(Cell t) {
             return get(t) == '.';
         }
 
@@ -156,7 +156,7 @@ public class Day23 {
             return ENTRANCES.stream().allMatch(this::isOrganizedBelow);
         }
 
-        boolean isOrganizedBelow(Tile tile) {
+        boolean isOrganizedBelow(Cell tile) {
             return IntStream.range(tile.row() + 1, rowCount() - 1)
                     .allMatch(j -> column(get(j, tile.col())) == tile.col());
         }

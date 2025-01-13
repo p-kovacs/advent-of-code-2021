@@ -3,8 +3,8 @@ package com.github.pkovacs.aoc.y2021;
 import java.util.List;
 
 import com.github.pkovacs.util.InputUtils;
+import com.github.pkovacs.util.data.Cell;
 import com.github.pkovacs.util.data.CharTable;
-import com.github.pkovacs.util.data.Tile;
 
 public class Day25 {
 
@@ -23,16 +23,16 @@ public class Day25 {
             boolean changed = false;
 
             var snapshot = new CharTable(table);
-            for (var from : cells(table, '>')) {
-                var to = new Tile(from.row(), (from.col() + 1) % table.colCount());
+            for (var from : table.findAll('>').toList()) {
+                var to = new Cell(from.row(), (from.col() + 1) % table.colCount());
                 if (isEmpty(snapshot, to)) {
                     changed = true;
                     move(table, from, to);
                 }
             }
             snapshot = new CharTable(table);
-            for (var from : cells(table, 'v')) {
-                var to = new Tile((from.row() + 1) % table.rowCount(), from.col());
+            for (var from : table.findAll('v').toList()) {
+                var to = new Cell((from.row() + 1) % table.rowCount(), from.col());
                 if (isEmpty(snapshot, to)) {
                     changed = true;
                     move(table, from, to);
@@ -47,15 +47,11 @@ public class Day25 {
         return stepCount;
     }
 
-    private static List<Tile> cells(CharTable table, char c) {
-        return table.cells().filter(t -> table.get(t) == c).toList();
-    }
-
-    private static boolean isEmpty(CharTable table, Tile t) {
+    private static boolean isEmpty(CharTable table, Cell t) {
         return table.get(t) == '.';
     }
 
-    private static void move(CharTable table, Tile from, Tile to) {
+    private static void move(CharTable table, Cell from, Cell to) {
         table.set(to, table.get(from));
         table.set(from, '.');
     }

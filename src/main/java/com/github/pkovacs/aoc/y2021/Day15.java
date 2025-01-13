@@ -6,8 +6,8 @@ import java.util.PriorityQueue;
 import com.github.pkovacs.util.InputUtils;
 import com.github.pkovacs.util.alg.Dijkstra;
 import com.github.pkovacs.util.alg.Dijkstra.Edge;
+import com.github.pkovacs.util.data.Cell;
 import com.github.pkovacs.util.data.IntTable;
-import com.github.pkovacs.util.data.Tile;
 
 public class Day15 {
 
@@ -26,10 +26,10 @@ public class Day15 {
         var table = new IntTable(size * repeat, size * repeat,
                 (i, j) -> (InputUtils.parseInt(map[i % size][j % size]) + i / size + j / size - 1) % 9 + 1);
 
-        var start = new Tile(0, 0);
-        var target = new Tile(table.rowCount() - 1, table.colCount() - 1);
+        var start = new Cell(0, 0);
+        var target = new Cell(table.rowCount() - 1, table.colCount() - 1);
         var result = Dijkstra.findPath(start,
-                tile -> table.neighborCells(tile).map(n -> new Edge<>(n, table.get(n))).toList(),
+                cell -> table.neighbors(cell).map(n -> new Edge<>(n, table.get(n))).toList(),
                 target::equals);
 
         return result.orElseThrow().dist();
@@ -43,18 +43,18 @@ public class Day15 {
         var table = new IntTable(size * repeat, size * repeat,
                 (i, j) -> (InputUtils.parseInt(map[i % size][j % size]) + i / size + j / size - 1) % 9 + 1);
 
-        var start = new Tile(0, 0);
-        var target = new Tile(table.rowCount() - 1, table.colCount() - 1);
+        var start = new Cell(0, 0);
+        var target = new Cell(table.rowCount() - 1, table.colCount() - 1);
         var dist = new IntTable(table.rowCount(), table.colCount());
         dist.fill(Integer.MAX_VALUE);
         dist.set(start, 0);
 
-        var queue = new PriorityQueue<Tile>(Comparator.comparing(dist::get));
+        var queue = new PriorityQueue<Cell>(Comparator.comparing(dist::get));
         queue.add(start);
         while (!queue.isEmpty()) {
             var u = queue.remove();
             int du = dist.get(u);
-            table.neighborCells(u).forEach(v -> {
+            table.neighbors(u).forEach(v -> {
                 int dv = du + table.get(v);
                 if (dv < dist.get(v)) {
                     dist.set(v, dv);

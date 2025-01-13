@@ -1,57 +1,40 @@
 package com.github.pkovacs.util.alg;
 
+import java.util.ArrayDeque;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.PriorityQueue;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import com.github.pkovacs.util.alg.Dijkstra.Edge;
+
 /**
- * Implements <a href="https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm">Dijkstra's algorithm</a> for
- * finding shortest paths.
+ * Implements an efficient version of the Bellman-Ford algorithm, which is known as the
+ * <a href="https://en.wikipedia.org/wiki/Shortest_Path_Faster_Algorithm">SPFA algorithm</a>.
+ * This algorithm is significantly slower than {@link Dijkstra}, but it also supports negative edge weights.
  * <p>
  * The input is a directed or undirected graph with {@code long} edge weights (implicitly defined by an edge provider
  * function) and one or more source nodes. The edge provider function has to provide for each node {@code u} a
- * collection of {@code (node, weight)} pairs ({@link Edge} objects) describing the outgoing edges of {@code u}.
- * This function is applied at most once for each node, when the algorithm advances from that node.
+ * collection of {@code (node, weight)} pairs ({@link Dijkstra.Edge} objects) describing the outgoing edges of
+ * {@code u}. This function might be applied multiple times to a single node as necessary.
  * <p>
- * This algorithm only supports non-negative edge weights. If you also need negative edge weights, use
- * {@link BellmanFord} instead.
+ * This algorithm also supports negative edge weights, but the graph must not contain a directed cycle with negative
+ * total weight. The current implementation might not terminate for such input. If there are no negative weights,
+ * use {@link Dijkstra} instead, because it is faster.
  * <p>
- * A target predicate can also be used in order to find path to a single target node instead of all nodes. The
- * algorithm terminates when a shortest path is found for a target node having minimum distance from the (nearest)
- * source node. This way, paths can also be searched in huge or (theoretically) infinite graphs provided that the
- * edges are generated on-the-fly when requested by the algorithm. For example, nodes and edges might represent
- * feasible states and steps of a combinatorial problem, and we might not be able to or do not want to enumerate
- * all possible (and reachable) states in advance.
+ * A target predicate can also be specified in order to find path to a single target node instead of all nodes.
+ * However, in contrast with {@link Dijkstra}, it does not make the search process faster for this algorithm, and
+ * the underlying graph must always be finite.
  *
+ * @see Dijkstra
  * @see Bfs
- * @see BellmanFord
  */
-public final class Dijkstra {
+public final class BellmanFord {
 
-    /**
-     * Represents an outgoing directed edge of a node being evaluated (expanded) by this algorithm.
-     */
-    public record Edge<T>(T endNode, long weight) {}
-
-    private Dijkstra() {
-    }
-
-    /**
-     * Calculates the distance along a shortest path from the given source node to the nearest target node specified
-     * by the given predicate. For more details, see {@link #findPath(Object, Function, Predicate)}.
-     *
-     * @throws java.util.NoSuchElementException if no target nodes are reachable from the source node.
-     */
-    public static <T> long dist(T source,
-            Function<? super T, ? extends Iterable<Edge<T>>> edgeProvider,
-            Predicate<? super T> targetPredicate) {
-        return findPath(source, edgeProvider, targetPredicate).orElseThrow().dist();
+    private BellmanFord() {
     }
 
     /**
@@ -87,8 +70,10 @@ public final class Dijkstra {
     public static <T> Optional<Path<T>> findPathFromAny(Iterable<? extends T> sources,
             Function<? super T, ? extends Iterable<Edge<T>>> edgeProvider,
             Predicate<? super T> targetPredicate) {
-        var results = new HashMap<T, Path<T>>();
-        return run(sources, edgeProvider, targetPredicate, results);
+        var map = run(sources, edgeProvider);
+        return map.values().stream()
+                .filter(p -> targetPredicate.test(p.endNode()))
+                .min(Comparator.comparing(Path::dist));
     }
 
     /**
@@ -114,33 +99,18 @@ public final class Dijkstra {
      */
     public static <T> Map<T, Path<T>> run(Iterable<? extends T> sources,
             Function<? super T, ? extends Iterable<Edge<T>>> edgeProvider) {
+
         var results = new HashMap<T, Path<T>>();
-        run(sources, edgeProvider, n -> false, results);
-        return results;
-    }
 
-    private static <T> Optional<Path<T>> run(Iterable<? extends T> sources,
-            Function<? super T, ? extends Iterable<Edge<T>>> edgeProvider,
-            Predicate<? super T> targetPredicate,
-            HashMap<T, Path<T>> results) {
-
-        var queue = new PriorityQueue<Path<T>>(Comparator.comparing(Path::dist));
+        var queue = new ArrayDeque<Path<T>>();
         for (var source : sources) {
             var path = new Path<T>(source, 0, null);
             results.put(source, path);
             queue.add(path);
         }
 
-        var processed = new HashSet<T>();
         while (!queue.isEmpty()) {
             var path = queue.poll();
-            if (targetPredicate.test(path.endNode())) {
-                return Optional.of(path);
-            }
-            if (!processed.add(path.endNode())) {
-                continue;
-            }
-
             for (var edge : edgeProvider.apply(path.endNode())) {
                 var neighbor = edge.endNode();
                 var dist = path.dist() + edge.weight();
@@ -153,7 +123,7 @@ public final class Dijkstra {
             }
         }
 
-        return Optional.empty();
+        return results;
     }
 
 }

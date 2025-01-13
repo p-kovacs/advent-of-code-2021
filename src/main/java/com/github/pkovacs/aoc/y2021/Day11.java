@@ -4,8 +4,8 @@ import java.util.ArrayDeque;
 import java.util.List;
 
 import com.github.pkovacs.util.InputUtils;
+import com.github.pkovacs.util.data.Cell;
 import com.github.pkovacs.util.data.IntTable;
-import com.github.pkovacs.util.data.Tile;
 
 public class Day11 {
 
@@ -22,12 +22,12 @@ public class Day11 {
         long totalFlashCount = 0;
         int synchStep = 0;
         for (int s = 0, max = advanced ? Integer.MAX_VALUE : 100; s < max; s++) {
-            table.updateAll(v -> v + 1);
+            table.cells().forEach(c -> table.update(c, v -> v + 1));
 
             var queue = new ArrayDeque<>(collectFlashed(table));
             while (!queue.isEmpty()) {
-                var tile = queue.remove();
-                table.extendedNeighborCells(tile).forEach(c -> {
+                var cell = queue.remove();
+                table.extendedNeighbors(cell).forEach(c -> {
                     if (table.inc(c) == 10) {
                         queue.add(c);
                     }
@@ -47,7 +47,7 @@ public class Day11 {
         return advanced ? synchStep : totalFlashCount;
     }
 
-    private static List<Tile> collectFlashed(IntTable table) {
+    private static List<Cell> collectFlashed(IntTable table) {
         return table.cells().filter(c -> table.get(c) > 9).toList();
     }
 

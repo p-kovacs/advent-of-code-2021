@@ -1,35 +1,25 @@
 package com.github.pkovacs.util.data;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Function;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.joining;
 
 /**
- * Represents a position vector in D-dimension space as an immutable array of {@code long} coordinates.
- * Provides methods for various vector operations and for obtaining the Manhattan distance between two vectors.
- * Lexicographical ordering is also supported.
+ * Represents a position vector in D-dimensional coordinate space with integer precision. It is an immutable array of
+ * {@code long} coordinates, which provides various useful methods and also supports lexicographical ordering.
  * <p>
- * Some features are specific to 2D vectors, e.g., directions and rotation. The coordinates are interpreted
- * as usual in Math: (0, 1) means {@link #NORTH}, (0, -1) means {@link #SOUTH}, (1, 0) means {@link #EAST},
- * (-1, 0) means {@link #WEST}, and (0, 0) is the {@link #ORIGIN}.
+ * This class is the D-dimensional generalization of {@link Point}.
+ *
+ * @see Point
+ * @see Box
  */
 public class Vector implements Comparable<Vector> {
-
-    /** The 2D origin vector: (0, 0). For other dimensions, use {@link #origin(int)}. */
-    public static final Vector ORIGIN = new Vector(0, 0);
-
-    /** The 2D unit vector with "north" direction: (0, 1). */
-    public static final Vector NORTH = new Vector(0, 1);
-
-    /** The 2D unit vector with "south" direction: (0, -1). */
-    public static final Vector SOUTH = new Vector(0, -1);
-
-    /** The 2D unit vector with "east" direction: (1, 0). */
-    public static final Vector EAST = new Vector(1, 0);
-
-    /** The 2D unit vector with "west" direction: (-1, 0). */
-    public static final Vector WEST = new Vector(-1, 0);
 
     private final long[] coords;
 
@@ -48,42 +38,24 @@ public class Vector implements Comparable<Vector> {
     }
 
     /**
-     * Creates a vector with the given coordinates.
+     * Creates a D-dimensional vector with the given coordinates.
+     *
+     * @throws IllegalArgumentException if less than two coordinates are given
      */
     public Vector(long... coords) {
-        if (coords.length <= 1) {
-            throw new IllegalArgumentException("At least two coordinates are required");
+        if (coords.length < 2) {
+            throw new IllegalArgumentException("At least two coordinates are required.");
         }
         this.coords = coords.clone();
     }
 
     /**
      * Returns the origin vector with the given dimension.
+     *
+     * @throws IllegalArgumentException if the dimension is less than two
      */
     public static Vector origin(int dim) {
         return new Vector(new long[dim]);
-    }
-
-    /**
-     * Returns the 2D unit vector corresponding to the given direction.
-     */
-    public static Vector fromDirection(Direction dir) {
-        return switch (dir) {
-            case NORTH -> Vector.NORTH;
-            case EAST -> Vector.EAST;
-            case SOUTH -> Vector.SOUTH;
-            case WEST -> Vector.WEST;
-        };
-    }
-
-    /**
-     * Returns the 2D unit vector corresponding to the given direction character.
-     *
-     * @param dir the direction character. One of 'N' (north), 'E' (east), 'S' (south), 'W' (west),
-     *         'U' (up), 'R' (right), 'D' (down), 'L' (left), and their lowercase variants.
-     */
-    public static Vector fromChar(char dir) {
-        return fromDirection(Direction.fromChar(dir));
     }
 
     /**
@@ -110,7 +82,7 @@ public class Vector implements Comparable<Vector> {
     /**
      * Returns the z coordinate of this vector. It is the same as {@link #get(int) get(2)}.
      *
-     * @throws IndexOutOfBoundsException if the dimension of this vector is less than three
+     * @throws IndexOutOfBoundsException if this is a 2D vector
      */
     public long z() {
         return coords[2];
@@ -119,20 +91,121 @@ public class Vector implements Comparable<Vector> {
     /**
      * Returns the k-th coordinate of this vector.
      *
-     * @throws IndexOutOfBoundsException if the dimension of this vector is less than or equal to {@code k}
+     * @throws IndexOutOfBoundsException if {@code k >= dim()}
      */
     public long get(int k) {
         return coords[k];
     }
 
-    private static void checkSameDimensions(Vector a, Vector b) {
-        if (a.coords.length != b.coords.length) {
-            throw new IllegalArgumentException("Vector dimensions mismatch.");
-        }
+    /**
+     * Creates a new vector by changing the k-th coordinate of this vector.
+     *
+     * @throws IndexOutOfBoundsException if {@code k >= dim()}
+     */
+    public Vector set(int k, long value) {
+        long[] newCoords = coords.clone();
+        newCoords[k] = value;
+        return new Vector(newCoords);
     }
 
-    private Vector newVector(Function<Integer, Long> function) {
-        long newCoords[] = new long[coords.length];
+    /**
+     * Returns a lexicographically sorted stream of the neighbors of this vector.
+     * The stream contains {@code 2 * dim()} vectors, and for each vector {@code v}, {@code v.dist1(this) == 1}.
+     */
+    public Stream<Vector> neighbors() {
+        return neighborsAndSelf().filter(p -> p != this);
+    }
+
+    /**
+     * Returns a lexicographically sorted stream of this vector and its neighbors.
+     * The stream contains {@code 2 * dim() + 1} vectors, and for each vector {@code v}, {@code v.dist1(this) <= 1}.
+     */
+    public Stream<Vector> neighborsAndSelf() {
+        var list = new ArrayList<Vector>();
+        for (int k = 0; k < dim(); k++) {
+            list.add(set(k, coords[k] - 1));
+        }
+        list.add(this);
+        for (int k = dim() - 1; k >= 0; k--) {
+            list.add(set(k, coords[k] + 1));
+        }
+        return list.stream();
+    }
+
+    /**
+     * Returns a lexicographically sorted stream of the "extended" neighbors of this vector.
+     * The stream contains {@code 3^dim() - 1} vectors, and for each vector {@code v}, {@code v.distMax(this) == 1}.
+     */
+    public Stream<Vector> extendedNeighbors() {
+        return extendedNeighborsAndSelf().filter(p -> p != this);
+    }
+
+    /**
+     * Returns a lexicographically sorted stream of this vector and its "extended" neighbors.
+     * The stream contains {@code 3^dim()} vectors, and for each vector {@code v}, {@code v.distMax(this) <= 1}.
+     */
+    public Stream<Vector> extendedNeighborsAndSelf() {
+        var list = List.of(this);
+        for (int i = 0; i < dim(); i++) {
+            int k = i;
+            list = list.stream()
+                    .flatMap(v -> Stream.of(v.set(k, v.get(k) - 1), v, v.set(k, v.get(k) + 1)))
+                    .toList();
+        }
+        return list.stream();
+    }
+
+    /**
+     * Creates a new vector by adding the given delta values to the coordinates of this vector.
+     *
+     * @throws IllegalArgumentException if the number of delta values is not equal to the dimension of the
+     *         vector
+     */
+    public Vector add(long... delta) {
+        return add(new Vector(delta));
+    }
+
+    /**
+     * Creates a new vector by adding the given vector to this one.
+     *
+     * @throws IllegalArgumentException if the vectors have different dimensions
+     */
+    public Vector add(Vector v) {
+        return newInstance(checkDimensions(this, v), i -> coords[i] + v.coords[i]);
+    }
+
+    /**
+     * Creates a new vector by subtracting the given vector from this one.
+     *
+     * @throws IllegalArgumentException if the vectors have different dimensions
+     */
+    public Vector subtract(Vector v) {
+        return newInstance(checkDimensions(this, v), i -> coords[i] - v.coords[i]);
+    }
+
+    /**
+     * Creates a new vector that is the opposite of this vector.
+     */
+    public Vector opposite() {
+        return newInstance(dim(), i -> -coords[i]);
+    }
+
+    /**
+     * Creates a new vector by multiplying this vector by the given scalar factor.
+     */
+    public Vector multiply(long factor) {
+        return newInstance(dim(), i -> factor * coords[i]);
+    }
+
+    private static int checkDimensions(Vector a, Vector b) {
+        if (a.coords.length != b.coords.length) {
+            throw new IllegalArgumentException("Vectors have different dimensions.");
+        }
+        return a.coords.length;
+    }
+
+    private static Vector newInstance(int dim, Function<Integer, Long> function) {
+        long[] newCoords = new long[dim];
         for (int i = 0; i < newCoords.length; i++) {
             newCoords[i] = function.apply(i);
         }
@@ -140,112 +213,79 @@ public class Vector implements Comparable<Vector> {
     }
 
     /**
-     * Returns a new vector obtained by adding the given vector to this one.
+     * Returns the <a href="https://en.wikipedia.org/wiki/Taxicab_geometry">Manhattan distance</a>
+     * (aka. L1 distance or "taxicab" distance) between this vector and the {@link #origin(int) origin}.
      */
-    public Vector add(Vector v) {
-        checkSameDimensions(this, v);
-        return newVector(i -> coords[i] + v.coords[i]);
-    }
-
-    /**
-     * Returns a new vector obtained by adding the given two vectors.
-     */
-    public static Vector add(Vector a, Vector b) {
-        return a.add(b);
-    }
-
-    /**
-     * Returns a new vector obtained by subtracting the given vector from this one.
-     */
-    public Vector sub(Vector v) {
-        checkSameDimensions(this, v);
-        return newVector(i -> coords[i] - v.coords[i]);
-    }
-
-    /**
-     * Returns a new vector obtained by subtracting the given second vector from the first one.
-     */
-    public static Vector sub(Vector a, Vector b) {
-        return a.sub(b);
-    }
-
-    /**
-     * Returns a new vector obtained by negating this vector.
-     */
-    public Vector negate() {
-        return newVector(i -> -coords[i]);
-    }
-
-    /**
-     * Returns a new vector obtained by multiplying this vector by the given scalar factor.
-     */
-    public Vector multiply(long factor) {
-        return newVector(i -> factor * coords[i]);
-    }
-
-    /**
-     * Returns a new vector obtained by mirroring this 2D vector horizontally.
-     */
-    public Vector mirrorHorizontally() {
-        if (dim() != 2) {
-            throw new UnsupportedOperationException("Supported only for 2D vectors.");
-        }
-        return new Vector(-x(), y());
-    }
-
-    /**
-     * Returns a new vector obtained by mirroring this 2D vector vertically.
-     */
-    public Vector mirrorVertically() {
-        if (dim() != 2) {
-            throw new UnsupportedOperationException("Supported only for 2D vectors.");
-        }
-        return new Vector(x(), -y());
-    }
-
-    /**
-     * Returns a new vector obtained by rotating this 2D vector 90 degrees to the right.
-     *
-     * @throws UnsupportedOperationException if the dimension of this vector is larger than two
-     */
-    public Vector rotateRight() {
-        if (dim() != 2) {
-            throw new UnsupportedOperationException("Supported only for 2D vectors.");
-        }
-        return new Vector(y(), -x());
-    }
-
-    /**
-     * Returns a new vector obtained by rotating this 2D vector 90 degrees to the left.
-     *
-     * @throws UnsupportedOperationException if the dimension of this vector is larger than two
-     */
-    public Vector rotateLeft() {
-        if (dim() != 2) {
-            throw new UnsupportedOperationException("Supported only for 2D vectors.");
-        }
-        return new Vector(-y(), x());
-    }
-
-    /**
-     * Returns the Manhattan distance between this vector and the {@link #origin(int) origin}.
-     */
-    public long dist() {
+    public long dist1() {
         return Arrays.stream(coords).map(Math::abs).sum();
     }
 
     /**
-     * Returns the Manhattan distance between this vector and the given vector.
+     * Returns the <a href="https://en.wikipedia.org/wiki/Taxicab_geometry">Manhattan distance</a>
+     * (aka. L1 distance or "taxicab" distance) between this vector and the given vector.
+     *
+     * @throws IllegalArgumentException if the vectors have different dimensions
      */
-    public long dist(Vector v) {
-        return sub(this, v).dist();
+    public long dist1(Vector v) {
+        return subtract(v).dist1();
     }
 
     /**
-     * Returns the Manhattan distance between the given two vectors.
+     * Returns the <a href="https://en.wikipedia.org/wiki/Chebyshev_distance">"maximum" distance</a>
+     * (aka. L∞ distance or Chebyshev distance) between this vector and the {@link #origin(int) origin}.
      */
-    public static long dist(Vector a, Vector b) {
-        return a.dist(b);
+    public long distMax() {
+        return Arrays.stream(coords).map(Math::abs).max().orElseThrow();
+    }
+
+    /**
+     * Returns the <a href="https://en.wikipedia.org/wiki/Chebyshev_distance">"maximum" distance</a>
+     * (aka. L∞ distance or Chebyshev distance) between this vector and the given vector.
+     *
+     * @throws IllegalArgumentException if the vectors have different dimensions
+     */
+    public long distMax(Vector v) {
+        return subtract(v).distMax();
+    }
+
+    /**
+     * Returns the <a href="https://en.wikipedia.org/wiki/Euclidean_distance#Squared_Euclidean_distance">squared
+     * Eucledian distance</a> between this vector and the {@link #origin(int) origin}.
+     * <p>
+     * Warning: this distance does not satisfy the triangle inequality.
+     */
+    public long distSq() {
+        return Arrays.stream(coords).map(i -> i * i).sum();
+    }
+
+    /**
+     * Returns the <a href="https://en.wikipedia.org/wiki/Euclidean_distance#Squared_Euclidean_distance">squared
+     * Eucledian distance</a> between this vector and the given vector.
+     * <p>
+     * Warning: this distance does not satisfy the triangle inequality.
+     *
+     * @throws IllegalArgumentException if the vectors have different dimensions
+     */
+    public long distSq(Vector v) {
+        return subtract(v).distSq();
+    }
+
+    /**
+     * Returns the <a href="https://en.wikipedia.org/wiki/Euclidean_distance">Eucledian distance</a>
+     * (aka. L2 distance) between this vector and the {@link #origin(int) origin}.
+     */
+    public double dist2() {
+        return Math.sqrt(distSq());
+    }
+
+    /**
+     * Returns the <a href="https://en.wikipedia.org/wiki/Euclidean_distance">Eucledian distance</a>
+     * (aka. L2 distance) between this vector and the given vector.
+     *
+     * @throws IllegalArgumentException if the vectors have different dimensions
+     */
+    public double dist2(Vector v) {
+        return subtract(v).dist2();
     }
 
     @Override
@@ -282,6 +322,32 @@ public class Vector implements Comparable<Vector> {
             }
         }
         return 0;
+    }
+
+    /**
+     * Returns an ordered stream of vectors within the closed box {@code [min..max]}.
+     * If {@code min.get(k) <= max.get(k)} for each {@code 0 <= k < dim()}, then the first element of the stream is
+     * {@code min}, the last element is {@code max}, and the stream is lexicographically sorted.
+     * Otherwise, an empty stream is returned.
+     * <p>
+     * Warning: this method eagerly constructs all elements of the stream, so be careful with large boxes.
+     *
+     * @throws IllegalArgumentException if the given vectors have different dimensions
+     */
+    public static Stream<Vector> box(Vector min, Vector max) {
+        int dim = checkDimensions(min, max);
+        if (IntStream.range(0, dim).anyMatch(k -> min.get(k) > max.get(k))) {
+            return Stream.empty();
+        }
+
+        var list = List.of(min);
+        for (int i = 0; i < dim; i++) {
+            int k = i;
+            list = list.stream()
+                    .flatMap(v -> LongStream.rangeClosed(min.get(k), max.get(k)).mapToObj(val -> v.set(k, val)))
+                    .toList();
+        }
+        return list.stream();
     }
 
 }

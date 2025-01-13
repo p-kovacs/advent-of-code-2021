@@ -2,11 +2,11 @@ package com.github.pkovacs.aoc.y2021;
 
 import java.util.ArrayList;
 
+import com.github.pkovacs.util.data.Cell;
 import com.google.common.primitives.Longs;
 import com.github.pkovacs.util.InputUtils;
 import com.github.pkovacs.util.alg.Bfs;
 import com.github.pkovacs.util.data.IntTable;
-import com.github.pkovacs.util.data.Tile;
 
 public class Day09 {
 
@@ -36,13 +36,13 @@ public class Day09 {
         return basinSizes[0] * basinSizes[1] * basinSizes[2];
     }
 
-    private static boolean isLowPoint(IntTable table, Tile tile) {
-        return table.neighborCells(tile).allMatch(n -> table.get(n) > table.get(tile));
+    private static boolean isLowPoint(IntTable table, Cell cell) {
+        return table.neighbors(cell).allMatch(n -> table.get(n) > table.get(cell));
     }
 
-    private static long calculateBasinSize(IntTable table, Tile tile) {
-        var bfsResult = Bfs.run(tile,
-                t -> table.neighborCells(t).filter(n -> table.get(n) != 9).toList());
+    private static long calculateBasinSize(IntTable table, Cell cell) {
+        var bfsResult = Bfs.run(cell,
+                c -> table.neighbors(c).filter(n -> table.get(n) != 9).toList());
         return bfsResult.size();
     }
 
